@@ -13,19 +13,19 @@ import "../styles/globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Monevero",
-    template: "%s · Monevero",
+    default: "NorthCents",
+    template: "%s · NorthCents",
   },
   description:
-    "Build a private, manually maintained picture of your assets, liabilities, and financial plans.",
-  applicationName: "Monevero",
+    "NorthCents gives your money direction with private account tracking, planning, and transparent what-if analysis.",
+  applicationName: "NorthCents",
   openGraph: {
     type: "website",
     locale: "en_CA",
-    siteName: "Monevero",
-    title: "Monevero personal money planner",
+    siteName: "NorthCents",
+    title: "NorthCents — Your money, with direction.",
     description:
-      "Track manually entered accounts and understand your financial position without connecting a bank.",
+      "See your accounts, plan your money, and explore financial decisions without connecting a bank.",
   },
   robots: {
     index: true,
@@ -46,7 +46,7 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var k='monevero:theme';var t=localStorage.getItem(k)||localStorage.getItem('finscope:theme');var v=t==='dark'||t==='light'?t:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');localStorage.setItem(k,v);document.documentElement.dataset.theme=v;document.documentElement.style.colorScheme=v}catch(e){}})()`,
+            __html: `(function(){try{var k='northcents:theme';var t=localStorage.getItem(k)||localStorage.getItem('monevero:theme')||localStorage.getItem('finscope:theme');var v=t==='dark'||t==='light'?t:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');localStorage.setItem(k,v);document.documentElement.dataset.theme=v;document.documentElement.style.colorScheme=v}catch(e){}})()`,
           }}
         />
       </head>
@@ -56,11 +56,11 @@ export default function RootLayout({
         </a>
         <header className="site-header">
           <div className="shell header-inner">
-            <Link className="wordmark" href="/" aria-label="Monevero home">
+            <Link className="wordmark" href="/" aria-label="NorthCents home">
               <span className="wordmark-mark" aria-hidden="true">
-                M
+                N
               </span>
-              <span>Monevero</span>
+              <span>NorthCents</span>
             </Link>
             <div className="header-actions">
               <DesktopNavigation />
@@ -79,8 +79,8 @@ export default function RootLayout({
         <footer className="site-footer">
           <div className="shell footer-inner">
             <p>
-              Estimates are based on the assumptions entered. Monevero provides
-              financial and economic analysis, not financial advice.
+              Estimates are based on the assumptions entered. NorthCents
+              provides financial and economic analysis, not financial advice.
             </p>
             <nav aria-label="Information">
               <Link href="/methodology">Methodology</Link>

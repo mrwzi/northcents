@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 
 type Theme = "light" | "dark";
 
-export const THEME_STORAGE_KEY = "monevero:theme";
+export const THEME_STORAGE_KEY = "northcents:theme";
+export const LEGACY_MONEVERO_THEME_STORAGE_KEY = "monevero:theme";
 export const LEGACY_THEME_STORAGE_KEY = "finscope:theme";
 
 function currentTheme(): Theme {

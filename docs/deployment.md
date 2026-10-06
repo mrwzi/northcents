@@ -1,6 +1,6 @@
-# Monevero deployment guide
+# NorthCents deployment guide
 
-This guide prepares Monevero for a first production deployment on Vercel. It
+This guide prepares NorthCents for a first production deployment on Vercel. It
 does not record a completed deployment. Every item in the post-deployment
 section must be checked against the real production URL after deployment.
 
@@ -32,7 +32,7 @@ npm audit --audit-level=low
 5. Enable branch protection or required checks if appropriate for the account.
 6. Review the rendered README and verify all relative documentation links.
 
-Monevero local/demo mode requires no secrets. Authentication and cloud backup
+NorthCents local/demo mode requires no secrets. Authentication and cloud backup
 require the two public Supabase configuration variables documented below.
 
 ## Recommended Vercel deployment procedure

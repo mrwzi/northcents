@@ -5,8 +5,8 @@ import {
 import { financialWorkspaceSchema } from "../domain/schemas";
 import type { CalendarDate } from "../domain/types";
 import type { FinancialWorkspace } from "../domain/workspace";
-import { MoneveroDatabase, requestToPromise } from "./indexeddb";
-import { MoneveroStorageError } from "./storage-errors";
+import { NorthCentsDatabase, requestToPromise } from "./indexeddb";
+import { NorthCentsStorageError } from "./storage-errors";
 import {
   ACTIVE_WORKSPACE_META_KEY,
   META_STORE,
@@ -119,7 +119,7 @@ function createMigratedWorkspace(
 }
 
 export async function migrateV1Baseline(
-  connection: MoneveroDatabase,
+  connection: NorthCentsDatabase,
   storage: Pick<StorageLike, "getItem">,
   options: V1MigrationOptions,
 ): Promise<V1MigrationResult> {
@@ -145,7 +145,7 @@ export async function migrateV1Baseline(
         (await requestToPromise(workspaceStore.get(options.workspaceId))) !==
         undefined
       )
-        throw new MoneveroStorageError(
+        throw new NorthCentsStorageError(
           "workspace-id-collision",
           "The migration workspace ID already exists.",
           { workspaceId: options.workspaceId },

@@ -1,7 +1,7 @@
-import { MoneveroStorageError, toStorageError } from "./storage-errors";
+import { NorthCentsStorageError, toStorageError } from "./storage-errors";
 import {
-  MONEVERO_DATABASE_NAME,
-  MONEVERO_DATABASE_VERSION,
+  NORTHCENTS_DATABASE_NAME,
+  NORTHCENTS_DATABASE_VERSION,
   META_STORE,
   PERSISTENCE_SCHEMA_META_KEY,
   WORKSPACES_STORE,
@@ -37,7 +37,7 @@ export function transactionDone(transaction: IDBTransaction): Promise<void> {
   });
 }
 
-export class MoneveroDatabase {
+export class NorthCentsDatabase {
   constructor(readonly database: IDBDatabase) {}
 
   close(): void {
@@ -94,20 +94,23 @@ export class MoneveroDatabase {
   }
 }
 
-export async function openMoneveroDatabase(
+export async function openNorthCentsDatabase(
   options: DatabaseOptions = {},
-): Promise<MoneveroDatabase> {
+): Promise<NorthCentsDatabase> {
   const globalFactory = (globalThis as { indexedDB?: IDBFactory }).indexedDB;
   const factory = options.indexedDB ?? globalFactory;
   if (factory === undefined)
-    throw new MoneveroStorageError(
+    throw new NorthCentsStorageError(
       "indexeddb-unavailable",
       "Browser-local IndexedDB is unavailable.",
     );
 
   let request: IDBOpenDBRequest;
   try {
-    request = factory.open(MONEVERO_DATABASE_NAME, MONEVERO_DATABASE_VERSION);
+    request = factory.open(
+      NORTHCENTS_DATABASE_NAME,
+      NORTHCENTS_DATABASE_VERSION,
+    );
   } catch (error) {
     throw toStorageError(
       error,
@@ -138,7 +141,7 @@ export async function openMoneveroDatabase(
     database.onversionchange = () => {
       database.close();
     };
-    return new MoneveroDatabase(database);
+    return new NorthCentsDatabase(database);
   } catch (error) {
     throw toStorageError(
       error,

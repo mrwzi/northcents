@@ -13,14 +13,14 @@ export type StorageErrorCode =
   | "workspace-id-collision";
 
 /** Error details intentionally contain identifiers/reasons, never financial data. */
-export class MoneveroStorageError extends Error {
+export class NorthCentsStorageError extends Error {
   constructor(
     readonly code: StorageErrorCode,
     message: string,
     readonly detail?: Readonly<Record<string, string | number | boolean>>,
   ) {
     super(message);
-    this.name = "MoneveroStorageError";
+    this.name = "NorthCentsStorageError";
   }
 }
 
@@ -28,12 +28,12 @@ export function toStorageError(
   error: unknown,
   fallbackCode: StorageErrorCode,
   fallbackMessage: string,
-): MoneveroStorageError {
-  if (error instanceof MoneveroStorageError) return error;
+): NorthCentsStorageError {
+  if (error instanceof NorthCentsStorageError) return error;
   if (error instanceof DOMException && error.name === "QuotaExceededError")
-    return new MoneveroStorageError(
+    return new NorthCentsStorageError(
       "quota-exceeded",
       "Local storage quota was exceeded.",
     );
-  return new MoneveroStorageError(fallbackCode, fallbackMessage);
+  return new NorthCentsStorageError(fallbackCode, fallbackMessage);
 }

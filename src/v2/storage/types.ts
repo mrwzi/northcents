@@ -7,8 +7,8 @@ import type { WorkspaceId } from "../domain/types";
  * workspaces in a different IndexedDB database.
  */
 export const LEGACY_INDEXEDDB_NAME = "finscope";
-export const MONEVERO_DATABASE_NAME = LEGACY_INDEXEDDB_NAME;
-export const MONEVERO_DATABASE_VERSION = 1;
+export const NORTHCENTS_DATABASE_NAME = LEGACY_INDEXEDDB_NAME;
+export const NORTHCENTS_DATABASE_VERSION = 1;
 export const WORKSPACES_STORE = "workspaces";
 export const META_STORE = "meta";
 

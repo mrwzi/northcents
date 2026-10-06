@@ -1,8 +1,18 @@
-# Monevero
+# NorthCents
 
-Monevero is a browser-based personal-money workspace and financial scenario
+**Your money, with direction.**
+
+NorthCents is a browser-based personal-money workspace and financial scenario
 explorer. Users can manually record where their money is held, what they owe,
 and examine how one explicit monthly assumption could change their position.
+
+## Preview
+
+![NorthCents synthetic demo profiles](docs/screenshots/northcents-desktop.png)
+
+<p align="center">
+  <img src="docs/screenshots/northcents-mobile.png" alt="NorthCents mobile sign-in experience" width="390" />
+</p>
 
 It is an educational analysis tool, not financial advice. It does not predict
 economic conditions or judge whether a decision is good or bad.
@@ -25,7 +35,7 @@ economic conditions or judge whether a decision is good or bad.
 - Versioned browser-local persistence using local storage and IndexedDB, with
   validation, migration, recovery, export/import foundations, and deletion.
 
-Monevero requires no bank connection. It can run without signing in, in which
+NorthCents requires no bank connection. It can run without signing in, in which
 case manually entered accounts and custom baselines remain in the browser.
 Signed-in users can explicitly save or restore a private cloud workspace.
 Scenario experiments are transient. Demo profiles are constructed examples,
@@ -33,12 +43,13 @@ not real people or statistical averages.
 
 ## Brand migration compatibility
 
-Monevero was previously named FinScope. Existing browser data remains valid:
+NorthCents was previously named Monevero and, before that, FinScope. Existing browser data remains valid:
 the original `finscope:baseline:v1` local-storage key and `finscope` IndexedDB
 database name are deliberately retained as stable persistence identifiers.
-New local backup files use `monevero-local-export`; imports continue to accept
-the previous `finscope-local-export` envelope. These legacy strings are data
-compatibility contracts, not visible product branding.
+New local backup files use `northcents-local-export`; imports continue to accept
+the previous `monevero-local-export` and `finscope-local-export` envelopes.
+These legacy strings are data compatibility contracts, not visible product
+branding.
 
 See [the implementation blueprint](docs/implementation-blueprint.md) for the
 product contract and [the methodology page](src/app/methodology/page.tsx) for
@@ -128,5 +139,5 @@ financial inputs to an external service.
 
 ## Disclaimer
 
-Monevero provides deterministic financial scenario analysis based on entered
+NorthCents provides deterministic financial scenario analysis based on entered
 assumptions. It does not provide financial advice.

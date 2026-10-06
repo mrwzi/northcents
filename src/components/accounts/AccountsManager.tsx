@@ -137,10 +137,10 @@ export function AccountsManager() {
 
   useEffect(() => {
     if (!workspace || handledDebtEditIntent.current) return;
-    const debtId = sessionStorage.getItem("monevero-edit-debt");
+    const debtId = sessionStorage.getItem("northcents-edit-debt");
     if (!debtId) return;
     handledDebtEditIntent.current = true;
-    sessionStorage.removeItem("monevero-edit-debt");
+    sessionStorage.removeItem("northcents-edit-debt");
     const account = workspace.liabilityAccounts.find(
       (liability) => liability.id === debtId,
     );
@@ -761,7 +761,7 @@ export function AccountsManager() {
                     <label>
                       Account nickname
                       <input
-                        name="monevero-account-nickname"
+                        name="northcents-account-nickname"
                         value={accountName}
                         onChange={(event) => {
                           setAccountName(event.target.value);
@@ -848,8 +848,8 @@ export function AccountsManager() {
                         </label>
                       ) : (
                         <p className="cash-place-note">
-                          You choose when and how much to pay. Monevero will not
-                          add a required payment to your plan.
+                          You choose when and how much to pay. NorthCents will
+                          not add a required payment to your plan.
                         </p>
                       )}
                     </>

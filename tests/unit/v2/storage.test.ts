@@ -6,12 +6,13 @@ import type { FinancialWorkspace } from "../../../src/v2/domain/workspace";
 import {
   EXPORT_FORMAT,
   LEGACY_EXPORT_FORMAT,
+  LEGACY_MONEVERO_EXPORT_FORMAT,
   exportWorkspace,
   importWorkspace,
   parseWorkspaceExport,
 } from "../../../src/v2/storage/export-import";
 import {
-  openMoneveroDatabase,
+  openNorthCentsDatabase,
   requestToPromise,
 } from "../../../src/v2/storage/indexeddb";
 import {
@@ -19,13 +20,13 @@ import {
   readV1BaselineForMigration,
 } from "../../../src/v2/storage/migration-v1";
 import {
-  MoneveroStorageError,
+  NorthCentsStorageError,
   toStorageError,
 } from "../../../src/v2/storage/storage-errors";
 import {
   ACTIVE_WORKSPACE_META_KEY,
-  MONEVERO_DATABASE_NAME,
-  MONEVERO_DATABASE_VERSION,
+  NORTHCENTS_DATABASE_NAME,
+  NORTHCENTS_DATABASE_VERSION,
   META_STORE,
   V1_MIGRATION_META_KEY,
   WORKSPACES_STORE,
@@ -149,7 +150,7 @@ function memoryStorage(initial?: string) {
 
 async function expectStorageCode(
   operation: Promise<unknown>,
-  code: MoneveroStorageError["code"],
+  code: NorthCentsStorageError["code"],
 ) {
   await expect(operation).rejects.toMatchObject({ code });
 }
@@ -162,9 +163,9 @@ describe("IndexedDB database and workspace repository", () => {
   });
 
   it("opens the exact database/version with only workspaces and meta", async () => {
-    const connection = await openMoneveroDatabase({ indexedDB: factory });
-    expect(connection.database.name).toBe(MONEVERO_DATABASE_NAME);
-    expect(connection.database.version).toBe(MONEVERO_DATABASE_VERSION);
+    const connection = await openNorthCentsDatabase({ indexedDB: factory });
+    expect(connection.database.name).toBe(NORTHCENTS_DATABASE_NAME);
+    expect(connection.database.version).toBe(NORTHCENTS_DATABASE_VERSION);
     expect(Array.from(connection.database.objectStoreNames)).toEqual([
       META_STORE,
       WORKSPACES_STORE,
@@ -176,13 +177,13 @@ describe("IndexedDB database and workspace repository", () => {
     expect(transaction.objectStore(META_STORE).indexNames.length).toBe(0);
     expect(transaction.objectStore(WORKSPACES_STORE).indexNames.length).toBe(0);
     connection.close();
-    const reopened = await openMoneveroDatabase({ indexedDB: factory });
+    const reopened = await openNorthCentsDatabase({ indexedDB: factory });
     expect(reopened.database.version).toBe(1);
     reopened.close();
   });
 
   it("creates, reads, updates, lists, and deletes multiple workspaces", async () => {
-    const connection = await openMoneveroDatabase({ indexedDB: factory });
+    const connection = await openNorthCentsDatabase({ indexedDB: factory });
     const repository = new WorkspaceRepository(connection);
     const first = workspace();
     const second = workspace("workspace-2");
@@ -205,7 +206,7 @@ describe("IndexedDB database and workspace repository", () => {
   });
 
   it("round-trips complete asset-account data without a consolidated field", async () => {
-    const connection = await openMoneveroDatabase({ indexedDB: factory });
+    const connection = await openNorthCentsDatabase({ indexedDB: factory });
     const repository = new WorkspaceRepository(connection);
     const original = workspace();
     const before = deriveSpendableCashCents(original.assetAccounts);
@@ -235,7 +236,7 @@ describe("IndexedDB database and workspace repository", () => {
   });
 
   it("rejects invalid writes, credentials, debt cash types, and limits", async () => {
-    const connection = await openMoneveroDatabase({ indexedDB: factory });
+    const connection = await openNorthCentsDatabase({ indexedDB: factory });
     const repository = new WorkspaceRepository(connection);
     const original = workspace();
     await expectStorageCode(
@@ -274,7 +275,7 @@ describe("IndexedDB database and workspace repository", () => {
   });
 
   it("rejects corrupted reads without deleting or repairing them", async () => {
-    const connection = await openMoneveroDatabase({ indexedDB: factory });
+    const connection = await openNorthCentsDatabase({ indexedDB: factory });
     const repository = new WorkspaceRepository(connection);
     await connection.write(WORKSPACES_STORE, async (transaction) => {
       await requestToPromise(
@@ -294,7 +295,7 @@ describe("IndexedDB database and workspace repository", () => {
   });
 
   it("aborts a failed write transaction without partial data", async () => {
-    const connection = await openMoneveroDatabase({ indexedDB: factory });
+    const connection = await openNorthCentsDatabase({ indexedDB: factory });
     await expectStorageCode(
       connection.write(WORKSPACES_STORE, async (transaction) => {
         await requestToPromise(
@@ -312,7 +313,7 @@ describe("IndexedDB database and workspace repository", () => {
 
 describe("active workspace and clearing", () => {
   it("isolates active workspace pointers by authenticated user", async () => {
-    const connection = await openMoneveroDatabase({
+    const connection = await openNorthCentsDatabase({
       indexedDB: new IDBFactory(),
     });
     const repository = new WorkspaceRepository(connection);
@@ -333,7 +334,7 @@ describe("active workspace and clearing", () => {
 
   it("persists, clears, and transactionally removes an active pointer", async () => {
     const factory = new IDBFactory();
-    let connection = await openMoneveroDatabase({ indexedDB: factory });
+    let connection = await openNorthCentsDatabase({ indexedDB: factory });
     let repository = new WorkspaceRepository(connection);
     const first = workspace();
     const second = workspace("workspace-2");
@@ -341,7 +342,7 @@ describe("active workspace and clearing", () => {
     await repository.createWorkspace(second);
     await repository.setActiveWorkspace(first.id);
     connection.close();
-    connection = await openMoneveroDatabase({ indexedDB: factory });
+    connection = await openNorthCentsDatabase({ indexedDB: factory });
     repository = new WorkspaceRepository(connection);
     expect(await repository.getActiveWorkspace()).toEqual(first);
     await repository.deleteWorkspace(first.id);
@@ -354,7 +355,7 @@ describe("active workspace and clearing", () => {
   });
 
   it("reports stale and corrupted active workspaces as recoverable errors", async () => {
-    const connection = await openMoneveroDatabase({
+    const connection = await openNorthCentsDatabase({
       indexedDB: new IDBFactory(),
     });
     const repository = new WorkspaceRepository(connection);
@@ -397,7 +398,7 @@ describe("active workspace and clearing", () => {
   it("clears only V2 stores and leaves V1 localStorage untouched", async () => {
     const source = JSON.stringify({ version: 1, savedAt: now, baseline: {} });
     const storage = memoryStorage(source);
-    const connection = await openMoneveroDatabase({
+    const connection = await openNorthCentsDatabase({
       indexedDB: new IDBFactory(),
     });
     const repository = new WorkspaceRepository(connection);
@@ -434,7 +435,7 @@ describe("non-destructive V1 migration", () => {
 
   it("migrates exactly once without touching the V1 source or inventing details", async () => {
     const storage = memoryStorage(storedV1);
-    const connection = await openMoneveroDatabase({
+    const connection = await openNorthCentsDatabase({
       indexedDB: new IDBFactory(),
     });
     const repository = new WorkspaceRepository(connection);
@@ -491,7 +492,7 @@ describe("non-destructive V1 migration", () => {
   it("preserves malformed and unsupported sources and creates nothing", async () => {
     for (const source of ["not json", JSON.stringify({ version: 99 })]) {
       const storage = memoryStorage(source);
-      const connection = await openMoneveroDatabase({
+      const connection = await openNorthCentsDatabase({
         indexedDB: new IDBFactory(),
       });
       const result = await migrateV1Baseline(connection, storage, options);
@@ -509,7 +510,7 @@ describe("non-destructive V1 migration", () => {
     expect(readV1BaselineForMigration(storage)).toEqual({
       status: "no-source",
     });
-    const connection = await openMoneveroDatabase({
+    const connection = await openNorthCentsDatabase({
       indexedDB: new IDBFactory(),
     });
     expect(await migrateV1Baseline(connection, storage, options)).toEqual({
@@ -523,7 +524,7 @@ describe("non-destructive V1 migration", () => {
 
   it("does not mark migration successful when the atomic write fails", async () => {
     const storage = memoryStorage(storedV1);
-    const connection = await openMoneveroDatabase({
+    const connection = await openNorthCentsDatabase({
       indexedDB: new IDBFactory(),
     });
     const repository = new WorkspaceRepository(connection);
@@ -574,20 +575,23 @@ describe("local export and import", () => {
     expect(serialized).not.toContain("availableCashCents");
   });
 
-  it("accepts legacy FinScope exports without emitting the legacy brand", async () => {
-    const serialized = await exportWorkspace(workspace(), {
-      exportedAt: now,
-      applicationVersion: "0.1.0",
-    });
-    const legacyEnvelope = {
-      ...(JSON.parse(serialized) as Record<string, unknown>),
-      format: LEGACY_EXPORT_FORMAT,
-    };
-    const parsed = await parseWorkspaceExport(JSON.stringify(legacyEnvelope));
+  it.each([LEGACY_MONEVERO_EXPORT_FORMAT, LEGACY_EXPORT_FORMAT])(
+    "accepts legacy %s exports without emitting the legacy brand",
+    async (legacyFormat) => {
+      const serialized = await exportWorkspace(workspace(), {
+        exportedAt: now,
+        applicationVersion: "0.1.0",
+      });
+      const legacyEnvelope = {
+        ...(JSON.parse(serialized) as Record<string, unknown>),
+        format: legacyFormat,
+      };
+      const parsed = await parseWorkspaceExport(JSON.stringify(legacyEnvelope));
 
-    expect(parsed.format).toBe(EXPORT_FORMAT);
-    expect(parsed.workspace.id).toBe("workspace-1");
-  });
+      expect(parsed.format).toBe(EXPORT_FORMAT);
+      expect(parsed.workspace.id).toBe("workspace-1");
+    },
+  );
 
   it("imports valid data and rejects collisions without overwrite", async () => {
     const original = workspace();
@@ -595,7 +599,7 @@ describe("local export and import", () => {
       exportedAt: now,
       applicationVersion: "0.1.0",
     });
-    const connection = await openMoneveroDatabase({
+    const connection = await openNorthCentsDatabase({
       indexedDB: new IDBFactory(),
     });
     const repository = new WorkspaceRepository(connection);
@@ -662,7 +666,7 @@ describe("failure and privacy boundaries", () => {
   it("returns a typed unavailable error", async () => {
     const descriptor = Object.getOwnPropertyDescriptor(globalThis, "indexedDB");
     vi.stubGlobal("indexedDB", undefined);
-    await expectStorageCode(openMoneveroDatabase(), "indexeddb-unavailable");
+    await expectStorageCode(openNorthCentsDatabase(), "indexeddb-unavailable");
     vi.unstubAllGlobals();
     if (descriptor !== undefined)
       Object.defineProperty(globalThis, "indexedDB", descriptor);
@@ -675,7 +679,7 @@ describe("failure and privacy boundaries", () => {
       },
     } as unknown as IDBFactory;
     await expectStorageCode(
-      openMoneveroDatabase({ indexedDB: brokenFactory }),
+      openNorthCentsDatabase({ indexedDB: brokenFactory }),
       "database-open-failed",
     );
     expect(
@@ -690,7 +694,7 @@ describe("failure and privacy boundaries", () => {
   it("contains no network, cookie, URL, or logging behavior", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch");
     const logSpy = vi.spyOn(console, "log");
-    const connection = await openMoneveroDatabase({
+    const connection = await openNorthCentsDatabase({
       indexedDB: new IDBFactory(),
     });
     const repository = new WorkspaceRepository(connection);

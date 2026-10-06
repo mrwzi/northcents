@@ -399,7 +399,7 @@ function MoneyPlanContent() {
                   <div>
                     <strong>Split this payment using your plan</strong>
                     <span>
-                      Monevero uses your own category proportions and includes
+                      NorthCents uses your own category proportions and includes
                       required debt payments. You can change every amount.
                     </span>
                   </div>
@@ -430,7 +430,7 @@ function MoneyPlanContent() {
                 </div>
               )}
               <p className="plan-transfer-note">
-                This creates category envelopes only. Monevero does not move
+                This creates category envelopes only. NorthCents does not move
                 money between your accounts.
               </p>
             </>
@@ -544,7 +544,7 @@ function MoneyPlanContent() {
                     {missingDebtNames.join(", ")}.
                   </strong>
                   <span>
-                    Monevero cannot calculate your plan accurately from a debt
+                    NorthCents cannot calculate your plan accurately from a debt
                     balance alone.
                   </span>
                 </div>
@@ -555,7 +555,7 @@ function MoneyPlanContent() {
                     const firstMissingId = debtPayments.missingAccountIds[0];
                     if (firstMissingId)
                       sessionStorage.setItem(
-                        "monevero-edit-debt",
+                        "northcents-edit-debt",
                         firstMissingId,
                       );
                   }}
@@ -730,8 +730,8 @@ function MoneyPlanContent() {
                   FCAC says needs differ by person and suggests gradually
                   building an emergency fund toward 3–6 months of regular
                   expenses when possible. Its first-job guidance suggests
-                  starting with 5–10% of each paycheque; Monevero’s optional
-                  starter uses the lower 5% figure.
+                  starting with 5–10% of each paycheque; NorthCents&apos;
+                  optional starter uses the lower 5% figure.
                 </p>
                 <div className="benchmark-links">
                   <a

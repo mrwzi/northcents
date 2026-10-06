@@ -106,7 +106,7 @@ export function ImpactSummary({
             {formatCad(plannedSavingsExcess)} per month.
           </strong>
           <p>
-            Monevero preserves your entered savings amount, resulting in
+            NorthCents preserves your entered savings amount, resulting in
             negative remaining flexible cash.
           </p>
         </aside>

@@ -98,7 +98,7 @@ export type DemoProfile = Readonly<{
   name: string;
   description: string;
   baseline: Baseline;
-  provenance: "Synthetic example created for Monevero; not a statistical average.";
+  provenance: "Synthetic example created for NorthCents; not a statistical average.";
 }>;
 
 export type UserBaseline = Readonly<{

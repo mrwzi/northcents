@@ -2,7 +2,7 @@
 
 ## READY WITH MANUAL CHECKS
 
-Automated verification found no release-blocking defect. Monevero is suitable
+Automated verification found no release-blocking defect. NorthCents is suitable
 for a public portfolio deployment, GitHub link, LinkedIn reference, recruiter
 demonstration, and educational scenario use after the manual checks below are
 completed for the intended release environment.
@@ -33,7 +33,7 @@ No release-blocking defects were identified by automated verification.
 
 ## Verified product limitations
 
-- Monevero models simplified monthly scenarios and does not predict future conditions.
+- NorthCents models simplified monthly scenarios and does not predict future conditions.
 - It provides analysis, not financial advice or affordability decisions.
 - Demo profiles are synthetic and are not statistical averages.
 - No live economic data, bank connection, authentication, analytics, or cloud persistence exists.

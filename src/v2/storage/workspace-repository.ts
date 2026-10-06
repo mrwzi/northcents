@@ -1,8 +1,8 @@
 import { financialWorkspaceSchema } from "../domain/schemas";
 import type { WorkspaceId } from "../domain/types";
 import type { FinancialWorkspace } from "../domain/workspace";
-import { MoneveroDatabase, requestToPromise } from "./indexeddb";
-import { MoneveroStorageError } from "./storage-errors";
+import { NorthCentsDatabase, requestToPromise } from "./indexeddb";
+import { NorthCentsStorageError } from "./storage-errors";
 import {
   ACTIVE_WORKSPACE_META_KEY,
   activeWorkspaceMetaKey,
@@ -19,13 +19,13 @@ function validateWorkspace(raw: unknown): FinancialWorkspace {
     "schemaVersion" in raw &&
     raw.schemaVersion !== 2
   )
-    throw new MoneveroStorageError(
+    throw new NorthCentsStorageError(
       "unsupported-workspace-version",
       "The stored workspace version is not supported.",
     );
   const result = financialWorkspaceSchema.safeParse(raw);
   if (!result.success)
-    throw new MoneveroStorageError(
+    throw new NorthCentsStorageError(
       "corrupted-workspace",
       "The stored workspace failed validation.",
     );
@@ -38,14 +38,14 @@ function validateForWrite(workspace: unknown): FinancialWorkspace {
 }
 
 export class WorkspaceRepository {
-  constructor(readonly connection: MoneveroDatabase) {}
+  constructor(readonly connection: NorthCentsDatabase) {}
 
   async createWorkspace(workspace: FinancialWorkspace): Promise<void> {
     const valid = validateForWrite(workspace);
     await this.connection.write(WORKSPACES_STORE, async (transaction) => {
       const store = transaction.objectStore(WORKSPACES_STORE);
       if ((await requestToPromise(store.get(valid.id))) !== undefined)
-        throw new MoneveroStorageError(
+        throw new NorthCentsStorageError(
           "workspace-id-collision",
           "A workspace with this ID already exists.",
           { workspaceId: valid.id },
@@ -59,7 +59,7 @@ export class WorkspaceRepository {
     await this.connection.write(WORKSPACES_STORE, async (transaction) => {
       const store = transaction.objectStore(WORKSPACES_STORE);
       if ((await requestToPromise(store.get(valid.id))) === undefined)
-        throw new MoneveroStorageError(
+        throw new NorthCentsStorageError(
           "workspace-not-found",
           "The workspace does not exist.",
           { workspaceId: valid.id },
@@ -79,7 +79,7 @@ export class WorkspaceRepository {
         ),
     );
     if (raw === undefined)
-      throw new MoneveroStorageError(
+      throw new NorthCentsStorageError(
         "workspace-not-found",
         "The workspace does not exist.",
         { workspaceId: id },
@@ -119,7 +119,7 @@ export class WorkspaceRepository {
       async (transaction) => {
         const workspaceStore = transaction.objectStore(WORKSPACES_STORE);
         if ((await requestToPromise(workspaceStore.get(id))) === undefined)
-          throw new MoneveroStorageError(
+          throw new NorthCentsStorageError(
             "workspace-not-found",
             "The workspace does not exist.",
             { workspaceId: id },
@@ -152,7 +152,7 @@ export class WorkspaceRepository {
             .get(id) as IDBRequest<unknown>,
         );
         if (rawWorkspace === undefined)
-          throw new MoneveroStorageError(
+          throw new NorthCentsStorageError(
             "workspace-not-found",
             "The workspace does not exist.",
             { workspaceId: id },
@@ -179,7 +179,7 @@ export class WorkspaceRepository {
       !("workspaceId" in raw) ||
       typeof raw.workspaceId !== "string"
     )
-      throw new MoneveroStorageError(
+      throw new NorthCentsStorageError(
         "invalid-active-workspace",
         "The active workspace pointer is invalid.",
       );
@@ -195,14 +195,14 @@ export class WorkspaceRepository {
       return await this.getWorkspace(id);
     } catch (error) {
       if (
-        error instanceof MoneveroStorageError &&
+        error instanceof NorthCentsStorageError &&
         [
           "workspace-not-found",
           "corrupted-workspace",
           "unsupported-workspace-version",
         ].includes(error.code)
       )
-        throw new MoneveroStorageError(
+        throw new NorthCentsStorageError(
           "invalid-active-workspace",
           "The active workspace cannot be loaded.",
           { workspaceId: id, reason: error.code },

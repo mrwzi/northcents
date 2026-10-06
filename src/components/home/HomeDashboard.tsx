@@ -47,7 +47,7 @@ function HomeDashboardContent() {
       <div className="home-empty-layout">
         <section className="app-home-hero app-card">
           <div className="landing-intro">
-            <p className="eyebrow">Get started</p>
+            <p className="eyebrow">Your money, with direction.</p>
             <h1>Add your money.</h1>
             <p className="hero-copy">
               Enter what you have and what you owe. You stay in control.

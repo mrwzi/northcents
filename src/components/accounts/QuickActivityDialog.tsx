@@ -157,8 +157,8 @@ export function QuickActivityDialog({
             </p>
           )}
           <p className="cash-place-note">
-            This updates the manual balance in Monevero. It does not move money
-            at your bank.
+            This updates the manual balance in NorthCents. It does not move
+            money at your bank.
           </p>
           <button className="button button-primary" type="submit">
             {kind === "income" ? "Add money" : "Save spending"}

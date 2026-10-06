@@ -1,16 +1,17 @@
 import { financialWorkspaceSchema } from "../domain/schemas";
 import type { FinancialWorkspace } from "../domain/workspace";
 import { z } from "zod";
-import { MoneveroStorageError } from "./storage-errors";
+import { NorthCentsStorageError } from "./storage-errors";
 import { WorkspaceRepository } from "./workspace-repository";
 
-export const EXPORT_FORMAT = "monevero-local-export";
+export const EXPORT_FORMAT = "northcents-local-export";
+export const LEGACY_MONEVERO_EXPORT_FORMAT = "monevero-local-export";
 export const LEGACY_EXPORT_FORMAT = "finscope-local-export";
 export const EXPORT_FORMAT_VERSION = 1;
 export const EXPORT_PRIVACY_WARNING =
   "This file contains personal financial information.";
 
-export type MoneveroExport = Readonly<{
+export type NorthCentsExport = Readonly<{
   format: typeof EXPORT_FORMAT;
   formatVersion: 1;
   dataSchemaVersion: 2;
@@ -24,7 +25,7 @@ export type MoneveroExport = Readonly<{
 async function sha256(value: string): Promise<string> {
   const cryptoApi = (globalThis as { crypto?: Crypto }).crypto;
   if (cryptoApi === undefined)
-    throw new MoneveroStorageError(
+    throw new NorthCentsStorageError(
       "invalid-import",
       "Local cryptographic validation is unavailable.",
     );
@@ -45,7 +46,7 @@ export async function exportWorkspace(
     workspace,
   ) as unknown as FinancialWorkspace;
   const workspaceJson = JSON.stringify(parsed);
-  const envelope: MoneveroExport = {
+  const envelope: NorthCentsExport = {
     format: EXPORT_FORMAT,
     formatVersion: 1,
     dataSchemaVersion: 2,
@@ -60,31 +61,33 @@ export async function exportWorkspace(
 
 export async function parseWorkspaceExport(
   serialized: string,
-): Promise<MoneveroExport> {
+): Promise<NorthCentsExport> {
   let raw: unknown;
   try {
     raw = JSON.parse(serialized) as unknown;
   } catch {
-    throw new MoneveroStorageError(
+    throw new NorthCentsStorageError(
       "invalid-import",
       "The import is not valid JSON.",
     );
   }
   if (typeof raw !== "object" || raw === null)
-    throw new MoneveroStorageError(
+    throw new NorthCentsStorageError(
       "invalid-import",
       "The import envelope is invalid.",
     );
   if (
     !("format" in raw) ||
-    (raw.format !== EXPORT_FORMAT && raw.format !== LEGACY_EXPORT_FORMAT)
+    (raw.format !== EXPORT_FORMAT &&
+      raw.format !== LEGACY_MONEVERO_EXPORT_FORMAT &&
+      raw.format !== LEGACY_EXPORT_FORMAT)
   )
-    throw new MoneveroStorageError(
+    throw new NorthCentsStorageError(
       "invalid-import",
       "The import format is invalid.",
     );
   if (!("formatVersion" in raw) || raw.formatVersion !== EXPORT_FORMAT_VERSION)
-    throw new MoneveroStorageError(
+    throw new NorthCentsStorageError(
       "unsupported-export-version",
       "The export version is not supported.",
     );
@@ -94,7 +97,7 @@ export async function parseWorkspaceExport(
     !("workspaceSchemaVersion" in raw) ||
     raw.workspaceSchemaVersion !== 2
   )
-    throw new MoneveroStorageError(
+    throw new NorthCentsStorageError(
       "unsupported-workspace-version",
       "The exported workspace version is not supported.",
     );
@@ -113,7 +116,7 @@ export async function parseWorkspaceExport(
     !("digest" in raw.integrity) ||
     typeof raw.integrity.digest !== "string"
   )
-    throw new MoneveroStorageError(
+    throw new NorthCentsStorageError(
       "invalid-import",
       "The import envelope is invalid.",
     );
@@ -124,20 +127,20 @@ export async function parseWorkspaceExport(
     "schemaVersion" in raw.workspace &&
     raw.workspace.schemaVersion !== 2
   )
-    throw new MoneveroStorageError(
+    throw new NorthCentsStorageError(
       "unsupported-workspace-version",
       "The exported workspace version is not supported.",
     );
 
   const parsed = financialWorkspaceSchema.safeParse(raw.workspace);
   if (!parsed.success)
-    throw new MoneveroStorageError(
+    throw new NorthCentsStorageError(
       "invalid-import",
       "The imported workspace failed validation.",
     );
   const workspace = parsed.data as unknown as FinancialWorkspace;
   if ((await sha256(JSON.stringify(workspace))) !== raw.integrity.digest)
-    throw new MoneveroStorageError(
+    throw new NorthCentsStorageError(
       "invalid-import",
       "The import integrity check failed.",
     );
@@ -159,7 +162,7 @@ export async function importWorkspace(
 ): Promise<FinancialWorkspace> {
   const envelope = await parseWorkspaceExport(serialized);
   if (await repository.workspaceExists(envelope.workspace.id))
-    throw new MoneveroStorageError(
+    throw new NorthCentsStorageError(
       "workspace-id-collision",
       "A workspace with this ID already exists.",
       { workspaceId: envelope.workspace.id },

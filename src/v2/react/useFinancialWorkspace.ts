@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { parseCalendarDate } from "../domain/calendar";
 import type { FinancialWorkspace } from "../domain/workspace";
-import { openMoneveroDatabase, WorkspaceRepository } from "../storage";
+import { openNorthCentsDatabase, WorkspaceRepository } from "../storage";
 import { useAuthUser } from "../../lib/supabase/use-auth-user";
 
 function today(): ReturnType<typeof parseCalendarDate> {
@@ -66,7 +66,7 @@ export function useFinancialWorkspace() {
     setLoading(true);
     setError(null);
     try {
-      const database = await openMoneveroDatabase();
+      const database = await openNorthCentsDatabase();
       try {
         const repository = new WorkspaceRepository(database);
         setWorkspace(await repository.getActiveWorkspace(ownerId));
@@ -86,7 +86,7 @@ export function useFinancialWorkspace() {
 
   const save = useCallback(
     async (next: FinancialWorkspace) => {
-      const database = await openMoneveroDatabase();
+      const database = await openNorthCentsDatabase();
       try {
         const repository = new WorkspaceRepository(database);
         const exists = await repository.workspaceExists(next.id);

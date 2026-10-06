@@ -1,6 +1,6 @@
-# Monevero architecture
+# NorthCents architecture
 
-Monevero separates financial rules from presentation and persistence. The UI
+NorthCents separates financial rules from presentation and persistence. The UI
 must call domain functions instead of recreating calculations inside React
 components.
 

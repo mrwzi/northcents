@@ -22,7 +22,7 @@ for (const route of routes) {
     await page.reload();
     await expect(page.locator("main")).toBeVisible();
     await expect(
-      page.getByRole("link", { name: "Monevero home" }),
+      page.getByRole("link", { name: "NorthCents home" }),
     ).toBeVisible();
   });
 }
@@ -34,7 +34,7 @@ test("returns a branded 404 with safe navigation", async ({ page }) => {
     page.getByRole("heading", { name: "This page is not available." }),
   ).toBeVisible();
   await expect(page.getByRole("link", { name: "Return home" })).toBeVisible();
-  await expect(page).toHaveTitle(/Page not found · Monevero/);
+  await expect(page).toHaveTitle(/Page not found · NorthCents/);
 });
 
 test("persists and deletes a custom baseline after hard navigation", async ({

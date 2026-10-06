@@ -122,11 +122,11 @@ test("landing has one account-first decision and one disclaimer", async ({
     page.getByRole("link", { name: "Try a demo", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByText("Questions Monevero is designed to explore"),
+    page.getByText("Questions NorthCents is designed to explore"),
   ).toHaveCount(0);
   await expect(
     page.getByText(
-      "Estimates are based on the assumptions entered. Monevero provides financial and economic analysis, not financial advice.",
+      "Estimates are based on the assumptions entered. NorthCents provides financial and economic analysis, not financial advice.",
       { exact: true },
     ),
   ).toHaveCount(1);
@@ -146,6 +146,6 @@ test("theme control switches modes and persists after reload", async ({
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", changed);
   expect(
-    await page.evaluate(() => localStorage.getItem("monevero:theme")),
+    await page.evaluate(() => localStorage.getItem("northcents:theme")),
   ).toBe(changed);
 });

@@ -1,4 +1,4 @@
-# Monevero V2 mobile app-shell direction
+# NorthCents V2 mobile app-shell direction
 
 Status: presentation contract; future financial features remain gated by their deterministic domain phases.
 

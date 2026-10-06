@@ -1,4 +1,4 @@
-# Monevero V2 Domain Contract Map
+# NorthCents V2 Domain Contract Map
 
 Status: Phase 1 contract freeze  
 Date: 2026-09-23  

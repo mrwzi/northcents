@@ -1,4 +1,4 @@
-# Monevero release checklist
+# NorthCents release checklist
 
 Status labels:
 

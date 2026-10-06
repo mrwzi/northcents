@@ -36,7 +36,7 @@ export const METRIC_METHODOLOGY = {
     unit: "CAD per month",
     display: "Displayed to two decimal places.",
     limitation:
-      "Monevero does not separately calculate taxes or payroll deductions.",
+      "NorthCents does not separately calculate taxes or payroll deductions.",
   },
   housing: {
     id: "housing",
@@ -67,7 +67,7 @@ export const METRIC_METHODOLOGY = {
     unit: "CAD per month",
     display: "Displayed to two decimal places.",
     limitation:
-      "Monevero does not model amortization, interest changes, or loan terms.",
+      "NorthCents does not model amortization, interest changes, or loan terms.",
   },
   "non-savings-outflows": {
     id: "non-savings-outflows",
