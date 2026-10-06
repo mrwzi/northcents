@@ -1,0 +1,42 @@
+import type { BudgetCategoryKey } from "./budget-categories";
+import type { Recurrence, RecurrenceBounds } from "./recurrence";
+import type {
+  CalendarDate,
+  EntityMetadata,
+  ExpenseDefinitionId,
+  ExpenseEventId,
+  FinancialEventStatus,
+  ObligationClassification,
+  PersonalProvenance,
+  V2Cents,
+  WorkspaceId,
+} from "./types";
+export type ExpenseNature = "fixed" | "variable" | "periodic" | "unexpected";
+export type ExpenseDefinition = EntityMetadata &
+  Readonly<{
+    id: ExpenseDefinitionId;
+    workspaceId: WorkspaceId;
+    name: string;
+    amountCents: V2Cents;
+    category: BudgetCategoryKey;
+    nature: ExpenseNature;
+    obligation: ObligationClassification;
+    recurrence: Recurrence;
+    bounds: RecurrenceBounds;
+    provenance: PersonalProvenance;
+  }>;
+export type DatedExpenseEvent = EntityMetadata &
+  Readonly<{
+    id: ExpenseEventId;
+    workspaceId: WorkspaceId;
+    definitionId?: ExpenseDefinitionId;
+    name: string;
+    amountCents: V2Cents;
+    category: BudgetCategoryKey;
+    nature: ExpenseNature;
+    obligation: ObligationClassification;
+    dueDate: CalendarDate;
+    status: FinancialEventStatus;
+    actualDate?: CalendarDate;
+    provenance: PersonalProvenance;
+  }>;
