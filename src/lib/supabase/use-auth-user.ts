@@ -22,10 +22,14 @@ export function useAuthUser(): AuthUserState {
     if (!configured) return;
     let active = true;
     const client = createClient();
+    const fallback = window.setTimeout(() => {
+      if (active) setState({ status: "signed-out", user: null });
+    }, 2500);
     void client.auth
       .getSession()
       .then(({ data }) => {
         if (!active) return;
+        window.clearTimeout(fallback);
         setState(
           data.session?.user
             ? { status: "signed-in", user: data.session.user }
@@ -33,9 +37,13 @@ export function useAuthUser(): AuthUserState {
         );
       })
       .catch(() => {
-        if (active) setState({ status: "signed-out", user: null });
+        if (active) {
+          window.clearTimeout(fallback);
+          setState({ status: "signed-out", user: null });
+        }
       });
     const { data } = client.auth.onAuthStateChange((_event, session) => {
+      window.clearTimeout(fallback);
       setState(
         session?.user
           ? { status: "signed-in", user: session.user }
@@ -44,6 +52,7 @@ export function useAuthUser(): AuthUserState {
     });
     return () => {
       active = false;
+      window.clearTimeout(fallback);
       data.subscription.unsubscribe();
     };
   }, [configured]);

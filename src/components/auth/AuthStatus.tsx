@@ -13,19 +13,30 @@ export function AuthStatus() {
   useEffect(() => {
     let active = true;
     const supabase = createClient();
+    const fallback = window.setTimeout(() => {
+      if (active) setUser(null);
+    }, 2500);
     void supabase.auth
       .getSession()
       .then(({ data }) => {
-        if (active) setUser(data.session?.user ?? null);
+        if (active) {
+          window.clearTimeout(fallback);
+          setUser(data.session?.user ?? null);
+        }
       })
       .catch(() => {
-        if (active) setUser(null);
+        if (active) {
+          window.clearTimeout(fallback);
+          setUser(null);
+        }
       });
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      window.clearTimeout(fallback);
       setUser(session?.user ?? null);
     });
     return () => {
       active = false;
+      window.clearTimeout(fallback);
       data.subscription.unsubscribe();
     };
   }, []);
