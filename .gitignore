@@ -11,3 +11,7 @@ test-results/
 *.log
 .DS_Store
 Thumbs.db
+
+# Local coding-agent instructions (not part of the public product)
+AGENTS.md
+CLAUDE.md
