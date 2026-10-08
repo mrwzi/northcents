@@ -20,14 +20,21 @@ export function useAuthUser(): AuthUserState {
   );
   useEffect(() => {
     if (!configured) return;
+    let active = true;
     const client = createClient();
-    void client.auth.getUser().then(({ data }) => {
-      setState(
-        data.user
-          ? { status: "signed-in", user: data.user }
-          : { status: "signed-out", user: null },
-      );
-    });
+    void client.auth
+      .getSession()
+      .then(({ data }) => {
+        if (!active) return;
+        setState(
+          data.session?.user
+            ? { status: "signed-in", user: data.session.user }
+            : { status: "signed-out", user: null },
+        );
+      })
+      .catch(() => {
+        if (active) setState({ status: "signed-out", user: null });
+      });
     const { data } = client.auth.onAuthStateChange((_event, session) => {
       setState(
         session?.user
@@ -36,6 +43,7 @@ export function useAuthUser(): AuthUserState {
       );
     });
     return () => {
+      active = false;
       data.subscription.unsubscribe();
     };
   }, [configured]);

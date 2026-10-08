@@ -11,14 +11,21 @@ export function AuthStatus() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
+    let active = true;
     const supabase = createClient();
-    void supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-    });
+    void supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (active) setUser(data.session?.user ?? null);
+      })
+      .catch(() => {
+        if (active) setUser(null);
+      });
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
     return () => {
+      active = false;
       data.subscription.unsubscribe();
     };
   }, []);
