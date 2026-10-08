@@ -12,6 +12,7 @@ import { hasSupabaseConfig } from "../lib/supabase/config";
 import "../styles/globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://northcents.vercel.app"),
   title: {
     default: "NorthCents",
     template: "%s · NorthCents",
@@ -19,6 +20,9 @@ export const metadata: Metadata = {
   description:
     "NorthCents gives your money direction with private account tracking, planning, and transparent what-if analysis.",
   applicationName: "NorthCents",
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     type: "website",
     locale: "en_CA",
