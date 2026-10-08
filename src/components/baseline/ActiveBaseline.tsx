@@ -8,6 +8,7 @@ import { useLocalBaseline } from "../../hooks/useLocalBaseline";
 import { ScenarioLab } from "../scenario/ScenarioLab";
 import type { ScenarioType } from "../scenario/ScenarioPicker";
 import { StorageNotice } from "./StorageNotice";
+import { LoadingState } from "../shared/LoadingState";
 
 export function ActiveBaseline({
   profileId,
@@ -47,7 +48,7 @@ export function ActiveBaseline({
   }
 
   if (localBaseline.status === "loading") {
-    return <p role="status">Loading your local baseline…</p>;
+    return <LoadingState label="Loading your saved picture…" />;
   }
 
   if (localBaseline.value === null) {

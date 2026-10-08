@@ -8,6 +8,7 @@ import {
 } from "../components/shell/AppNavigation";
 import { ThemeToggle } from "../components/shell/ThemeToggle";
 import { AuthStatus } from "../components/auth/AuthStatus";
+import { SiteFooter } from "../components/shell/SiteFooter";
 import { hasSupabaseConfig } from "../lib/supabase/config";
 import "../styles/globals.css";
 
@@ -62,7 +63,14 @@ export default function RootLayout({
           <div className="shell header-inner">
             <Link className="wordmark" href="/" aria-label="NorthCents home">
               <span className="wordmark-mark" aria-hidden="true">
-                N
+                <svg viewBox="0 0 32 32">
+                  <path d="M3 25 11.5 9l4.7 7L21 5l8 20H3Z" />
+                  <path d="m11 25 5.3-8.2 2.2 3.2 3.8-6.2L27 25H11Z" />
+                  <path
+                    className="mark-path"
+                    d="M8 21c4-1 5-6 9-6 2.8 0 3.5 2.6 7 2.7"
+                  />
+                </svg>
               </span>
               <span>NorthCents</span>
             </Link>
@@ -80,18 +88,7 @@ export default function RootLayout({
           </div>
         </header>
         <main id="main-content">{children}</main>
-        <footer className="site-footer">
-          <div className="shell footer-inner">
-            <p>
-              Estimates are based on the assumptions entered. NorthCents
-              provides financial and economic analysis, not financial advice.
-            </p>
-            <nav aria-label="Information">
-              <Link href="/methodology">Methodology</Link>
-              <Link href="/privacy">Privacy</Link>
-            </nav>
-          </div>
-        </footer>
+        <SiteFooter />
         <div className="mobile-navigation-spacer" aria-hidden="true" />
         <MobileNavigation />
       </body>

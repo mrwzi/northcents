@@ -33,6 +33,7 @@ import type {
   LiabilityAccountId,
 } from "../../v2/domain/types";
 import { useFinancialWorkspace } from "../../v2/react/useFinancialWorkspace";
+import { LoadingState } from "../shared/LoadingState";
 import { AccountRows } from "./AccountRows";
 import { accountLabels, groupLabels } from "./account-options";
 import {
@@ -428,7 +429,7 @@ export function AccountsManager() {
     (account) => account.groupId === undefined,
   );
 
-  if (loading) return <p role="status">Loading your local accounts…</p>;
+  if (loading) return <LoadingState label="Loading your accounts…" />;
   return (
     <div className="accounts-layout">
       {error && (

@@ -11,6 +11,7 @@ import {
 import { BUDGET_CATEGORIES } from "../../v2/domain/budget-categories";
 import { useFinancialWorkspace } from "../../v2/react/useFinancialWorkspace";
 import { SignedInGate } from "../auth/SignedInGate";
+import { LoadingState } from "../shared/LoadingState";
 
 export function HomeDashboard() {
   return (
@@ -24,12 +25,7 @@ export function HomeDashboard() {
 
 function HomeDashboardContent() {
   const { workspace, loading, error } = useFinancialWorkspace();
-  if (loading)
-    return (
-      <section>
-        <p role="status">Loading your financial picture…</p>
-      </section>
-    );
+  if (loading) return <LoadingState label="Loading your financial picture…" />;
   if (error)
     return (
       <section>

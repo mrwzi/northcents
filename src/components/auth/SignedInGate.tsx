@@ -3,11 +3,12 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useAuthUser } from "../../lib/supabase/use-auth-user";
+import { LoadingState } from "../shared/LoadingState";
 
 export function SignedInGate({ children }: Readonly<{ children: ReactNode }>) {
   const auth = useAuthUser();
   if (auth.status === "loading")
-    return <p role="status">Checking your account…</p>;
+    return <LoadingState label="Checking your account…" />;
   if (auth.status === "signed-out")
     return (
       <section className="signed-out-card">

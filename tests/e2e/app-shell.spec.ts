@@ -126,10 +126,23 @@ test("landing has one account-first decision and one disclaimer", async ({
   ).toHaveCount(0);
   await expect(
     page.getByText(
-      "Estimates are based on the assumptions entered. NorthCents provides financial and economic analysis, not financial advice.",
+      "Estimates are based on your assumptions. NorthCents provides analysis, not financial advice.",
       { exact: true },
     ),
   ).toHaveCount(1);
+});
+
+test("the disclaimer can be dismissed and stays hidden", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Dismiss disclaimer" }).click();
+  await expect(page.locator(".site-footer")).toHaveCount(0);
+  await page.reload();
+  await expect(page.locator(".site-footer")).toHaveCount(0);
+  expect(
+    await page.evaluate(() =>
+      localStorage.getItem("northcents:disclaimer-dismissed:v1"),
+    ),
+  ).toBe("true");
 });
 
 test("theme control switches modes and persists after reload", async ({

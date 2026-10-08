@@ -1,47 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { createClient } from "../../lib/supabase/client";
+import { useAuthUser } from "../../lib/supabase/use-auth-user";
 
 export function AuthStatus() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+  const auth = useAuthUser();
+  const [signingOut, setSigningOut] = useState(false);
 
-  useEffect(() => {
-    let active = true;
-    const supabase = createClient();
-    const fallback = window.setTimeout(() => {
-      if (active) setUser(null);
-    }, 2500);
-    void supabase.auth
-      .getSession()
-      .then(({ data }) => {
-        if (active) {
-          window.clearTimeout(fallback);
-          setUser(data.session?.user ?? null);
-        }
-      })
-      .catch(() => {
-        if (active) {
-          window.clearTimeout(fallback);
-          setUser(null);
-        }
-      });
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      window.clearTimeout(fallback);
-      setUser(session?.user ?? null);
-    });
-    return () => {
-      active = false;
-      window.clearTimeout(fallback);
-      data.subscription.unsubscribe();
-    };
-  }, []);
+  if (auth.status === "loading")
+    return (
+      <span
+        className="auth-loading"
+        role="status"
+        aria-label="Checking account"
+      >
+        <span className="loading-spinner" aria-hidden="true" />
+      </span>
+    );
 
-  if (!user)
+  if (auth.status !== "signed-in")
     return (
       <Link className="auth-link" href="/auth">
         Sign in
@@ -52,16 +33,22 @@ export function AuthStatus() {
     <button
       className="auth-link auth-signout"
       type="button"
+      disabled={signingOut}
+      aria-busy={signingOut}
       onClick={() => {
+        setSigningOut(true);
         void createClient()
           .auth.signOut()
           .then(() => {
             router.push("/");
             router.refresh();
+          })
+          .finally(() => {
+            setSigningOut(false);
           });
       }}
     >
-      Sign out
+      {signingOut ? "Signing out…" : "Sign out"}
     </button>
   );
 }

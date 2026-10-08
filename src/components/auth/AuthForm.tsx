@@ -97,12 +97,18 @@ export function AuthForm() {
         <button
           className="button button-primary button-full"
           disabled={pending}
+          aria-busy={pending}
         >
-          {pending
-            ? "Please wait…"
-            : mode === "sign-up"
-              ? "Create account"
-              : "Sign in"}
+          {pending && <span className="button-spinner" aria-hidden="true" />}
+          <span>
+            {pending
+              ? mode === "sign-up"
+                ? "Creating account…"
+                : "Signing in…"
+              : mode === "sign-up"
+                ? "Create account"
+                : "Sign in"}
+          </span>
         </button>
       </form>
       <div className="auth-divider">

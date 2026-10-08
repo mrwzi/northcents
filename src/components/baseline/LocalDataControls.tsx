@@ -1,13 +1,14 @@
 "use client";
 
 import { useLocalBaseline } from "../../hooks/useLocalBaseline";
+import { LoadingState } from "../shared/LoadingState";
 import { StorageNotice } from "./StorageNotice";
 
 export function LocalDataControls() {
   const localBaseline = useLocalBaseline();
 
   if (localBaseline.status === "loading")
-    return <p role="status">Checking local data…</p>;
+    return <LoadingState label="Checking saved data…" />;
 
   return (
     <section className="data-controls" aria-labelledby="data-controls-heading">

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 
 import { useLocalBaseline } from "../../hooks/useLocalBaseline";
+import { LoadingState } from "../shared/LoadingState";
 import { BaselineForm } from "./BaselineForm";
 import { StorageNotice } from "./StorageNotice";
 
@@ -11,7 +12,7 @@ export function BuildBaselineExperience() {
   const localBaseline = useLocalBaseline();
 
   if (localBaseline.status === "loading") {
-    return <p role="status">Checking for a locally saved baseline…</p>;
+    return <LoadingState label="Checking for saved information…" />;
   }
 
   return (

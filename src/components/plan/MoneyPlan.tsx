@@ -23,6 +23,7 @@ import type { PlanningGroup } from "../../v2/domain/planning";
 import type { AllocationRuleId, V2Cents } from "../../v2/domain/types";
 import { useFinancialWorkspace } from "../../v2/react/useFinancialWorkspace";
 import { SignedInGate } from "../auth/SignedInGate";
+import { LoadingState } from "../shared/LoadingState";
 
 const PLAN_CATEGORIES = [
   "housing",
@@ -217,7 +218,7 @@ function MoneyPlanContent() {
       ? modelPurchase(analysis, purchaseCategory, purchaseCents)
       : null;
 
-  if (loading) return <p role="status">Loading your money plan…</p>;
+  if (loading) return <LoadingState label="Loading your money plan…" />;
   if (error) return <p role="alert">{error}</p>;
   if (!workspace || spendable === null)
     return (
