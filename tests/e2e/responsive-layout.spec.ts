@@ -99,3 +99,21 @@ test("accounts use available desktop space without stretching indefinitely", asy
   expect(width).toBeGreaterThan(720);
   expect(width).toBeLessThanOrEqual(960);
 });
+
+test("home, accounts, and plan keep the same mobile content width", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const widths: number[] = [];
+
+  for (const route of ["/", "/accounts", "/plan"] as const) {
+    await page.goto(route);
+    widths.push(
+      await page
+        .locator(".app-page")
+        .evaluate((element) => element.getBoundingClientRect().width),
+    );
+  }
+
+  expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(1);
+});

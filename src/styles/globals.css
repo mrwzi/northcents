@@ -41,6 +41,7 @@
 }
 
 html {
+  scrollbar-gutter: stable;
   color: var(--ink);
   background: var(--surface);
   font-family:
@@ -2905,8 +2906,7 @@ main {
 }
 
 .home-page {
-  width: min(1040px, calc(100% - 2rem));
-  max-width: none;
+  width: min(720px, calc(100% - 2rem));
 }
 
 .home-empty-layout {
@@ -3467,10 +3467,6 @@ main {
 
   .settings-page {
     width: min(100% - 1.25rem, 42rem);
-  }
-
-  .home-page {
-    width: min(100% - 1.25rem, 44rem);
   }
 
   .app-home-hero,
