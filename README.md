@@ -7,7 +7,12 @@ planning monthly spending, and testing clear what-if scenarios. It uses exact
 integer-cent calculations and keeps local data in the browser unless the user
 explicitly chooses cloud backup.
 
-**Live app:** [northcents.vercel.app](https://northcents.vercel.app)
+## Live demo
+
+**[Open NorthCents →](https://northcents.vercel.app)**
+
+No bank connection is required. Try a synthetic demo or create an account to
+save your own workspace.
 
 ## Product preview
 
