@@ -20,11 +20,9 @@ save your own workspace.
 
 ![NorthCents scenario analysis on desktop in light mode](docs/screenshots/northcents-desktop-light.png)
 
-### Mobile · dark mode
+### Desktop · dark mode
 
-<p align="center">
-  <img src="docs/screenshots/northcents-mobile-dark.png" alt="NorthCents scenario result on mobile in dark mode" width="390" />
-</p>
+![NorthCents scenario analysis on desktop in dark mode](docs/screenshots/northcents-desktop-dark.png)
 
 ## Highlights
 
