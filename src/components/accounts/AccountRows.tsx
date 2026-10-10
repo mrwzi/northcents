@@ -42,6 +42,7 @@ export function AccountRows({
               </button>
               <ActionMenu
                 label={`More actions for ${account.name}`}
+                title={`${account.name} account`}
                 actionLabel="Remove account"
                 onAction={() => void onRemove(account.id, "asset")}
               />
@@ -71,6 +72,7 @@ export function AccountRows({
               </button>
               <ActionMenu
                 label={`More actions for ${account.name}`}
+                title={`${account.name} account`}
                 actionLabel="Remove account"
                 onAction={() => void onRemove(account.id, "liability")}
               />

@@ -225,20 +225,23 @@ test("adds and completely removes a crypto provider", async ({ page }) => {
   await expect(page.getByText("Crypto exchange or wallet")).toBeVisible();
   const cryptoMenu = page.getByLabel("More actions for Crypto");
   await cryptoMenu.click();
-  await page.getByRole("heading", { name: "MEXC" }).click();
   await expect(
-    page.getByRole("menuitem", { name: "Remove account" }),
+    page.getByRole("dialog", { name: "Crypto account" }),
+  ).toBeVisible();
+  await page.locator(".action-sheet-backdrop").click({
+    position: { x: 5, y: 5 },
+  });
+  await expect(
+    page.getByRole("dialog", { name: "Crypto account" }),
   ).toHaveCount(0);
   await cryptoMenu.click();
-  await page.getByRole("menuitem", { name: "Remove account" }).click();
+  await page.getByRole("button", { name: "Remove account" }).click();
   await expect(page.getByText("No accounts here yet.")).toBeVisible();
   await page.getByLabel("More provider actions for MEXC").click();
   await page.keyboard.press("Escape");
-  await expect(
-    page.getByRole("menuitem", { name: "Remove provider" }),
-  ).toHaveCount(0);
+  await expect(page.getByRole("dialog", { name: "MEXC" })).toHaveCount(0);
   await page.getByLabel("More provider actions for MEXC").click();
-  await page.getByRole("menuitem", { name: "Remove provider" }).click();
+  await page.getByRole("button", { name: "Remove provider" }).click();
 
   await expect(page.getByRole("heading", { name: "MEXC" })).toHaveCount(0);
   await expect(page.getByText("MEXC removed.")).toBeVisible();

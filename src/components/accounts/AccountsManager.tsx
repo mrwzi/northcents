@@ -733,6 +733,7 @@ export function AccountsManager() {
                   <ActionMenu
                     provider
                     label={`More provider actions for ${group.name}`}
+                    title={group.name}
                     actionLabel="Remove provider"
                     onAction={() => void removeProvider(group)}
                   />
