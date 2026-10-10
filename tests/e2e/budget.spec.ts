@@ -4,8 +4,8 @@ test("allocates account money and models a purchase without changing the balance
   page,
 }) => {
   await page.goto("/accounts");
-  await page.getByRole("button", { name: "+ Add" }).click();
-  await page.getByLabel("Name of bank or platform").fill("Test bank");
+  await page.getByRole("button", { name: "+ Add provider" }).click();
+  await page.getByLabel("Bank name").fill("Test bank");
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByLabel("Current value").fill("1000");

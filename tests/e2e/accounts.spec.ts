@@ -4,11 +4,11 @@ test("adds manual assets and liabilities and derives the home totals", async ({
   page,
 }) => {
   await page.goto("/accounts");
-  await page.getByRole("button", { name: "+ Add" }).click();
+  await page.getByRole("button", { name: "+ Add provider" }).click();
   await expect(page.getByLabel("Account nickname")).toBeHidden();
-  await page.getByLabel("Name of bank or platform").fill("Example Bank");
+  await page.getByLabel("Bank name").fill("Example Bank");
   await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.getByLabel("Name of bank or platform")).toBeHidden();
+  await expect(page.getByLabel("Bank name")).toBeHidden();
   await page.getByText("Add a nickname (optional)").click();
   await page.getByLabel("Account nickname").fill("Everyday chequing");
   await page.getByRole("button", { name: "Continue" }).click();
@@ -39,9 +39,11 @@ test("adds manual assets and liabilities and derives the home totals", async ({
 
 test("keeps investments out of spendable cash", async ({ page }) => {
   await page.goto("/accounts");
-  await page.getByRole("button", { name: "+ Add" }).click();
-  await page.getByLabel("Place type").selectOption("investment-platform");
-  await page.getByLabel("Name of bank or platform").fill("Investment platform");
+  await page.getByRole("button", { name: "+ Add provider" }).click();
+  await page
+    .getByLabel("What are you adding?")
+    .selectOption("investment-platform");
+  await page.getByLabel("Investment platform name").fill("Investment platform");
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByLabel("Account type", { exact: true }).selectOption("tfsa");
   await page.getByRole("button", { name: "Continue" }).click();
@@ -56,10 +58,10 @@ test("adds cash without asking for a place or account name", async ({
   page,
 }) => {
   await page.goto("/accounts");
-  await page.getByRole("button", { name: "+ Add" }).click();
-  await page.getByLabel("Place type").selectOption("cash");
+  await page.getByRole("button", { name: "+ Add provider" }).click();
+  await page.getByLabel("What are you adding?").selectOption("cash");
 
-  await expect(page.getByLabel("Name of bank or platform")).toHaveCount(0);
+  await expect(page.getByLabel("Provider or place name")).toHaveCount(0);
   await expect(
     page.getByText("No name needed. Cash will appear as its own place."),
   ).toBeVisible();
@@ -80,9 +82,9 @@ test("adds a flexible debt without inventing a monthly payment", async ({
   page,
 }) => {
   await page.goto("/accounts");
-  await page.getByRole("button", { name: "+ Add" }).click();
-  await page.getByLabel("Place type").selectOption("other");
-  await page.getByLabel("Name of bank or platform").fill("Student loans");
+  await page.getByRole("button", { name: "+ Add provider" }).click();
+  await page.getByLabel("What are you adding?").selectOption("other");
+  await page.getByLabel("Provider or place name").fill("Student loans");
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByRole("button", { name: "Money I owe" }).click();
   await page
@@ -106,8 +108,8 @@ test("saves a paid-off credit card without inventing debt or a payment", async (
   page,
 }) => {
   await page.goto("/accounts");
-  await page.getByRole("button", { name: "+ Add" }).click();
-  await page.getByLabel("Name of bank or platform").fill("Example Bank");
+  await page.getByRole("button", { name: "+ Add provider" }).click();
+  await page.getByLabel("Bank name").fill("Example Bank");
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByRole("button", { name: "Money I owe" }).click();
   await page
@@ -127,8 +129,10 @@ test("saves a paid-off credit card without inventing debt or a payment", async (
 
 test("offers a clear university or college debt path", async ({ page }) => {
   await page.goto("/accounts");
-  await page.getByRole("button", { name: "+ Add" }).click();
-  await page.getByLabel("Place type").selectOption("education-provider");
+  await page.getByRole("button", { name: "+ Add provider" }).click();
+  await page
+    .getByLabel("What are you adding?")
+    .selectOption("education-provider");
   await page
     .getByLabel("Name of university or college")
     .fill("Example University");
@@ -151,15 +155,47 @@ test("offers a clear university or college debt path", async ({ page }) => {
   await page.getByRole("button", { name: "Save account" }).click();
 
   await expect(page.getByText("Account saved locally.")).toBeVisible();
-  await expect(page.getByText("Tuition owed to a school").first()).toBeVisible();
+  await expect(
+    page.getByText("Tuition owed to a school").first(),
+  ).toBeVisible();
+});
+
+test("adds and completely removes a crypto provider", async ({ page }) => {
+  await page.goto("/accounts");
+  await page.getByRole("button", { name: "+ Add provider" }).click();
+  await page.getByLabel("What are you adding?").selectOption("crypto-platform");
+  await expect(
+    page.getByText("Add the exchange or wallet first"),
+  ).toBeVisible();
+  await page.getByLabel("Crypto exchange or wallet name").fill("MEXC");
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  await expect(
+    page.getByRole("button", { name: "Money I have" }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByLabel("Account type", { exact: true })).toHaveValue(
+    "crypto",
+  );
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByLabel("Current value").fill("144.47");
+  await page.getByRole("button", { name: "Save account" }).click();
+
+  await expect(page.getByRole("heading", { name: "MEXC" })).toBeVisible();
+  await expect(page.getByText("Crypto exchange or wallet")).toBeVisible();
+  await page.getByRole("button", { name: "Remove Crypto" }).click();
+  await expect(page.getByText("No accounts here yet.")).toBeVisible();
+  await page.getByRole("button", { name: "Remove MEXC provider" }).click();
+
+  await expect(page.getByRole("heading", { name: "MEXC" })).toHaveCount(0);
+  await expect(page.getByText("MEXC removed.")).toBeVisible();
 });
 
 test("records money in and money out against an existing account", async ({
   page,
 }) => {
   await page.goto("/accounts");
-  await page.getByRole("button", { name: "+ Add" }).click();
-  await page.getByLabel("Name of bank or platform").fill("Daily bank");
+  await page.getByRole("button", { name: "+ Add provider" }).click();
+  await page.getByLabel("Bank name").fill("Daily bank");
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByLabel("Current value").fill("100");
@@ -184,10 +220,10 @@ test("records money in and money out against an existing account", async ({
 
 test("account form is usable without a pointer", async ({ page }) => {
   await page.goto("/accounts");
-  const add = page.getByRole("button", { name: "+ Add" });
+  const add = page.getByRole("button", { name: "+ Add provider" });
   await add.focus();
   await page.keyboard.press("Enter");
-  await page.getByLabel("Name of bank or platform").focus();
+  await page.getByLabel("Bank name").focus();
   await page.keyboard.type("Wallet");
   await page.getByRole("button", { name: "Continue" }).focus();
   await page.keyboard.press("Enter");

@@ -559,6 +559,21 @@ select {
   gap: 1rem;
 }
 
+.account-group-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.account-group-card header .remove-provider-button {
+  color: var(--danger);
+  background: transparent;
+}
+
+.account-group-card header .remove-provider-button:hover {
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+}
+
 .account-group-card h3,
 .account-group-card p {
   margin: 0;
@@ -3918,6 +3933,15 @@ body {
 
   .mobile-navigation a[aria-current="page"] {
     background: var(--brand-soft);
+  }
+
+  .account-group-card > header {
+    align-items: flex-start;
+  }
+
+  .account-group-actions {
+    justify-content: flex-end;
+    flex-wrap: wrap;
   }
 }
 

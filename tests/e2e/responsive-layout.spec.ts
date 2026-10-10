@@ -78,7 +78,7 @@ test("account entry dialog stays fully usable on the smallest screen", async ({
 }) => {
   await page.setViewportSize({ width: 320, height: 568 });
   await page.goto("/accounts");
-  await page.getByRole("button", { name: "+ Add" }).click();
+  await page.getByRole("button", { name: "+ Add provider" }).click();
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
   const box = await dialog.boundingBox();

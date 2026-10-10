@@ -34,7 +34,7 @@ export const groupLabels: Record<AccountGroupType, string> = {
   "credit-union": "Credit union",
   "online-bank": "Online bank",
   "investment-platform": "Investment platform",
-  "crypto-platform": "Crypto platform",
+  "crypto-platform": "Crypto exchange or wallet",
   "education-provider": "University or college",
   cash: "Cash",
   other: "Other",

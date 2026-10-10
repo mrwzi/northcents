@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { formatCad } from "../../domain/money";
 import {
-  ACCOUNT_GROUP_TYPES,
   type AccountGroup,
   type AccountGroupType,
 } from "../../v2/domain/account-groups";
@@ -53,6 +52,46 @@ function parseMoney(value: string, allowNegative: boolean): number | null {
   return Number.isSafeInteger(signed) && Math.abs(signed) <= MAX_V2_CENTS
     ? signed
     : null;
+}
+
+const PROVIDER_TYPE_OPTIONS = [
+  "bank",
+  "investment-platform",
+  "crypto-platform",
+  "education-provider",
+  "cash",
+  "other",
+] as const satisfies readonly AccountGroupType[];
+
+function providerNameLabel(type: AccountGroupType): string {
+  if (type === "bank") return "Bank name";
+  if (type === "investment-platform") return "Investment platform name";
+  if (type === "crypto-platform") return "Crypto exchange or wallet name";
+  if (type === "education-provider") return "Name of university or college";
+  return "Provider or place name";
+}
+
+function providerPlaceholder(type: AccountGroupType): string {
+  if (type === "bank") return "For example, BMO, TD, or Bank of America";
+  if (type === "investment-platform")
+    return "For example, Wealthsimple, Questrade, or Fidelity";
+  if (type === "crypto-platform")
+    return "For example, MEXC, Coinbase, or Tangem";
+  if (type === "education-provider")
+    return "For example, University of Waterloo";
+  return "Enter the name you recognize";
+}
+
+function providerHelp(type: AccountGroupType): string | null {
+  if (type === "bank")
+    return "Add the bank first. Next, add each chequing, savings, or credit-card account inside it.";
+  if (type === "investment-platform")
+    return "Add the platform first. Next, add TFSA, RRSP, FHSA, or investment accounts inside it.";
+  if (type === "crypto-platform")
+    return "Add the exchange or wallet first. Next, add the crypto account held inside it.";
+  if (type === "education-provider")
+    return "Add the school first. Next, add a student loan or tuition balance associated with it.";
+  return null;
 }
 
 function localToday() {
@@ -107,6 +146,22 @@ export function AccountsManager() {
     }
     setActivityKind(kind);
     setMessage(null);
+  }
+
+  function prepareAccountForProvider(type: AccountGroupType | undefined) {
+    if (type === "education-provider") {
+      setKind("liability");
+      setLiabilityType("student-loan");
+    } else if (type === "crypto-platform") {
+      setKind("asset");
+      setAssetType("crypto");
+    } else if (type === "investment-platform") {
+      setKind("asset");
+      setAssetType("tfsa");
+    } else if (type === "bank") {
+      setKind("asset");
+      setAssetType("chequing");
+    }
   }
 
   function openDialog(groupId = "new") {
@@ -174,10 +229,7 @@ export function AccountsManager() {
       setStep(3);
       return;
     }
-    if (step === 1 && isEducationPlace) {
-      setKind("liability");
-      setLiabilityType("student-loan");
-    }
+    if (step === 1) prepareAccountForProvider(selectedGroupType);
     setStep((step + 1) as 2 | 3);
   }
 
@@ -435,6 +487,42 @@ export function AccountsManager() {
     await save(next);
   }
 
+  async function removeProvider(group: AccountGroup) {
+    if (!workspace) return;
+    const accountCount =
+      workspace.assetAccounts.filter((account) => account.groupId === group.id)
+        .length +
+      workspace.liabilityAccounts.filter(
+        (account) => account.groupId === group.id,
+      ).length;
+    if (
+      accountCount > 0 &&
+      !window.confirm(
+        `Remove ${group.name} and ${String(accountCount)} ${accountCount === 1 ? "account" : "accounts"} inside it?`,
+      )
+    )
+      return;
+    const now = new Date().toISOString();
+    try {
+      await save({
+        ...workspace,
+        updatedAt: now,
+        accountGroups: workspace.accountGroups.filter(
+          (candidate) => candidate.id !== group.id,
+        ),
+        assetAccounts: workspace.assetAccounts.filter(
+          (account) => account.groupId !== group.id,
+        ),
+        liabilityAccounts: workspace.liabilityAccounts.filter(
+          (account) => account.groupId !== group.id,
+        ),
+      });
+      setMessage(`${group.name} removed.`);
+    } catch {
+      setMessage(`${group.name} could not be removed. Nothing was changed.`);
+    }
+  }
+
   const ungroupedAssets = assets.filter(
     (account) => account.groupId === undefined,
   );
@@ -502,8 +590,11 @@ export function AccountsManager() {
 
       <div className="accounts-toolbar">
         <div>
-          <h2>Your places</h2>
-          <p>Banks, platforms, cash, and the accounts inside them.</p>
+          <h2>Your banks and providers</h2>
+          <p>
+            Add BMO, TD, MEXC, Wealthsimple, a school, or cash—then add the
+            accounts inside each one.
+          </p>
         </div>
         <button
           className="button button-primary"
@@ -512,7 +603,7 @@ export function AccountsManager() {
             openDialog();
           }}
         >
-          + Add
+          + Add provider
         </button>
       </div>
 
@@ -528,9 +619,10 @@ export function AccountsManager() {
           <span className="empty-state-plus" aria-hidden="true">
             +
           </span>
-          <strong>Add your first bank or platform</strong>
+          <strong>Add your first bank or provider</strong>
           <small>
-            Then add chequing, savings, credit, investments, or other accounts.
+            Then add chequing, savings, credit cards, crypto, TFSA, RRSP, or
+            other accounts inside it.
           </small>
         </button>
       ) : null}
@@ -550,14 +642,24 @@ export function AccountsManager() {
                   <h3>{group.name}</h3>
                   <p>{groupLabels[group.type]} · Manually added</p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    openDialog(group.id);
-                  }}
-                >
-                  + Account
-                </button>
+                <div className="account-group-actions">
+                  <button
+                    className="remove-provider-button"
+                    type="button"
+                    aria-label={`Remove ${group.name} provider`}
+                    onClick={() => void removeProvider(group)}
+                  >
+                    Remove provider
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      openDialog(group.id);
+                    }}
+                  >
+                    + Account
+                  </button>
+                </div>
               </header>
               <AccountRows
                 assets={groupAssets}
@@ -666,7 +768,7 @@ export function AccountsManager() {
                 <div className="wizard-step">
                   {groups.length > 0 && (
                     <label>
-                      Choose a place
+                      Choose an existing bank or provider
                       <select
                         value={dialogGroupId}
                         onChange={(event) => {
@@ -678,14 +780,14 @@ export function AccountsManager() {
                             {group.name}
                           </option>
                         ))}
-                        <option value="new">Add a new place</option>
+                        <option value="new">Add a new bank or provider</option>
                       </select>
                     </label>
                   )}
                   {dialogGroupId === "new" && (
                     <>
                       <label>
-                        Place type
+                        What are you adding?
                         <select
                           value={newGroupType}
                           onChange={(event) => {
@@ -693,13 +795,10 @@ export function AccountsManager() {
                               .value as AccountGroupType;
                             setNewGroupType(nextType);
                             if (nextType === "cash") setNewGroupName("");
-                            if (nextType === "education-provider") {
-                              setKind("liability");
-                              setLiabilityType("student-loan");
-                            }
+                            prepareAccountForProvider(nextType);
                           }}
                         >
-                          {ACCOUNT_GROUP_TYPES.map((type) => (
+                          {PROVIDER_TYPE_OPTIONS.map((type) => (
                             <option key={type} value={type}>
                               {groupLabels[type]}
                             </option>
@@ -712,22 +811,19 @@ export function AccountsManager() {
                         </p>
                       ) : (
                         <label>
-                          {newGroupType === "education-provider"
-                            ? "Name of university or college"
-                            : "Name of bank or platform"}
+                          {providerNameLabel(newGroupType)}
                           <input
                             value={newGroupName}
                             onChange={(event) => {
                               setNewGroupName(event.target.value);
                             }}
                             autoComplete="organization"
-                            placeholder={
-                              newGroupType === "education-provider"
-                                ? "For example, University of Waterloo"
-                                : "TD, Wealthsimple, or another place"
-                            }
+                            placeholder={providerPlaceholder(newGroupType)}
                             autoFocus
                           />
+                          {providerHelp(newGroupType) && (
+                            <small>{providerHelp(newGroupType)}</small>
+                          )}
                         </label>
                       )}
                     </>
