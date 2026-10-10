@@ -609,7 +609,7 @@ select {
   position: relative;
 }
 
-.action-menu > summary {
+.action-menu-trigger {
   display: grid;
   width: 36px;
   min-width: 36px;
@@ -619,16 +619,11 @@ select {
   border-radius: 0.55rem;
   color: var(--muted);
   cursor: pointer;
-  list-style: none;
 }
 
-.action-menu > summary::-webkit-details-marker {
-  display: none;
-}
-
-.action-menu > summary:hover,
-.action-menu > summary:focus-visible,
-.action-menu[open] > summary {
+.action-menu-trigger:hover,
+.action-menu-trigger:focus-visible,
+.action-menu-trigger[aria-expanded="true"] {
   color: var(--ink);
   background: var(--surface-soft);
 }
@@ -681,7 +676,7 @@ select {
   font-size: 0.76rem;
 }
 
-.account-group-card header button {
+.account-group-card header .add-account-button {
   min-height: 44px;
   padding: 0 0.7rem;
   border: 0;

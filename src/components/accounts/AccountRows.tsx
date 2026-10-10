@@ -1,6 +1,7 @@
 import { formatCad } from "../../domain/money";
 import type { AssetAccount, LiabilityAccount } from "../../v2/domain/accounts";
 import { accountLabels } from "./account-options";
+import { ActionMenu } from "./ActionMenu";
 
 export function AccountRows({
   assets,
@@ -39,21 +40,11 @@ export function AccountRows({
               >
                 Update
               </button>
-              <details className="action-menu">
-                <summary aria-label={`More actions for ${account.name}`}>
-                  •••
-                </summary>
-                <div className="action-menu-popover">
-                  <button
-                    className="account-remove-button"
-                    type="button"
-                    aria-label={`Remove ${account.name}`}
-                    onClick={() => void onRemove(account.id, "asset")}
-                  >
-                    Remove account
-                  </button>
-                </div>
-              </details>
+              <ActionMenu
+                label={`More actions for ${account.name}`}
+                actionLabel="Remove account"
+                onAction={() => void onRemove(account.id, "asset")}
+              />
             </div>
           </div>
         </li>
@@ -78,21 +69,11 @@ export function AccountRows({
               >
                 Update
               </button>
-              <details className="action-menu">
-                <summary aria-label={`More actions for ${account.name}`}>
-                  •••
-                </summary>
-                <div className="action-menu-popover">
-                  <button
-                    className="account-remove-button"
-                    type="button"
-                    aria-label={`Remove ${account.name}`}
-                    onClick={() => void onRemove(account.id, "liability")}
-                  >
-                    Remove account
-                  </button>
-                </div>
-              </details>
+              <ActionMenu
+                label={`More actions for ${account.name}`}
+                actionLabel="Remove account"
+                onAction={() => void onRemove(account.id, "liability")}
+              />
             </div>
           </div>
         </li>

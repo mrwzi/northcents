@@ -34,6 +34,7 @@ import type {
 import { useFinancialWorkspace } from "../../v2/react/useFinancialWorkspace";
 import { LoadingState } from "../shared/LoadingState";
 import { AccountRows } from "./AccountRows";
+import { ActionMenu } from "./ActionMenu";
 import {
   AccountBalanceDialog,
   BALANCE_UPDATE_REASONS,
@@ -729,23 +730,12 @@ export function AccountsManager() {
                   >
                     + Account
                   </button>
-                  <details className="action-menu provider-action-menu">
-                    <summary
-                      aria-label={`More provider actions for ${group.name}`}
-                    >
-                      •••
-                    </summary>
-                    <div className="action-menu-popover">
-                      <button
-                        className="remove-provider-button"
-                        type="button"
-                        aria-label={`Remove ${group.name} provider`}
-                        onClick={() => void removeProvider(group)}
-                      >
-                        Remove provider
-                      </button>
-                    </div>
-                  </details>
+                  <ActionMenu
+                    provider
+                    label={`More provider actions for ${group.name}`}
+                    actionLabel="Remove provider"
+                    onAction={() => void removeProvider(group)}
+                  />
                 </div>
               </header>
               <AccountRows
