@@ -835,6 +835,28 @@ select {
   color: var(--danger);
 }
 
+.account-list .account-update-button {
+  color: var(--brand-dark);
+  font-weight: 750;
+}
+
+.balance-current-value {
+  display: flex;
+  margin: 0;
+  padding: 0.85rem 0.9rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-radius: 0.75rem;
+  color: var(--muted);
+  background: var(--surface-soft);
+}
+
+.balance-current-value strong {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
 .plan-debt-notice {
   display: flex;
   margin-top: 1rem;

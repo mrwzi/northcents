@@ -6,11 +6,13 @@ export function AccountRows({
   assets,
   liabilities,
   onRemove,
+  onUpdateAsset,
   onEditLiability,
 }: Readonly<{
   assets: readonly AssetAccount[];
   liabilities: readonly LiabilityAccount[];
   onRemove: (id: string, kind: "asset" | "liability") => Promise<void>;
+  onUpdateAsset: (account: AssetAccount) => void;
   onEditLiability: (account: LiabilityAccount) => void;
 }>) {
   if (assets.length + liabilities.length === 0)
@@ -27,7 +29,17 @@ export function AccountRows({
           <div>
             <strong>{formatCad(account.currentValueCents)}</strong>
             <button
-              className="account-edit-button"
+              className="account-update-button"
+              type="button"
+              aria-label={`Update ${account.name} balance`}
+              onClick={() => {
+                onUpdateAsset(account);
+              }}
+            >
+              Update
+            </button>
+            <button
+              className="account-remove-button"
               type="button"
               aria-label={`Remove ${account.name}`}
               onClick={() => void onRemove(account.id, "asset")}
@@ -54,7 +66,7 @@ export function AccountRows({
                 onEditLiability(account);
               }}
             >
-              Edit
+              Update
             </button>
             <button
               type="button"

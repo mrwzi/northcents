@@ -34,6 +34,11 @@ import type {
 import { useFinancialWorkspace } from "../../v2/react/useFinancialWorkspace";
 import { LoadingState } from "../shared/LoadingState";
 import { AccountRows } from "./AccountRows";
+import {
+  AccountBalanceDialog,
+  BALANCE_UPDATE_REASONS,
+  type BalanceUpdateInput,
+} from "./AccountBalanceDialog";
 import { accountLabels, groupLabels } from "./account-options";
 import {
   QuickActivityDialog,
@@ -125,12 +130,18 @@ export function AccountsManager() {
   const [activityKind, setActivityKind] = useState<QuickActivityKind | null>(
     null,
   );
+  const [balanceUpdateAssetId, setBalanceUpdateAssetId] = useState<
+    string | null
+  >(null);
   const handledDebtEditIntent = useRef(false);
   const assets = workspace?.assetAccounts ?? [];
   const liabilities = workspace?.liabilityAccounts ?? [];
   const groups = workspace?.accountGroups ?? [];
   const dialogOpen = dialogGroupId !== null;
   const activeAssets = assets.filter((account) => account.status === "active");
+  const balanceUpdateAccount = assets.find(
+    (account) => account.id === balanceUpdateAssetId,
+  );
   const hasZeroLiabilityBalance =
     kind === "liability" && parseMoney(valueInput, false) === 0;
   const selectedGroupType =
@@ -465,6 +476,60 @@ export function AccountsManager() {
     }
   }
 
+  async function submitBalanceUpdate(
+    input: BalanceUpdateInput,
+  ): Promise<string | null> {
+    if (!workspace) return "Your workspace is not ready yet.";
+    const account = workspace.assetAccounts.find(
+      (candidate) => candidate.id === input.accountId,
+    );
+    const amount = parseMoney(input.amount, input.reason === "set");
+    if (!account) return "Choose an account to update.";
+    if (amount === null || (input.reason !== "set" && amount <= 0))
+      return input.reason === "set"
+        ? "Enter the new current balance."
+        : "Enter an amount greater than $0.";
+    const now = new Date().toISOString();
+    const today = localToday();
+    try {
+      const updatedAccount =
+        input.reason === "set"
+          ? {
+              ...account,
+              currentValueCents: asV2Cents(amount),
+              valueAsOfDate: today,
+              updatedAt: now,
+            }
+          : applyAssetAccountActivity(
+              account,
+              input.reason === "loss" || input.reason === "fee-withdrawal"
+                ? "outflow"
+                : "inflow",
+              asV2Cents(amount),
+              today,
+              now,
+            );
+      await save({
+        ...workspace,
+        updatedAt: now,
+        asOfDate: today,
+        assetAccounts: workspace.assetAccounts.map((candidate) =>
+          candidate.id === account.id ? updatedAccount : candidate,
+        ),
+      });
+      const reasonLabel = BALANCE_UPDATE_REASONS.find(
+        (option) => option.value === input.reason,
+      )?.label;
+      setBalanceUpdateAssetId(null);
+      setMessage(
+        `${account.name} updated to ${formatCad(updatedAccount.currentValueCents)}${reasonLabel ? ` · ${reasonLabel}` : ""}.`,
+      );
+      return null;
+    } catch {
+      return "The balance could not be updated. Nothing was changed.";
+    }
+  }
+
   async function remove(id: string, accountKind: "asset" | "liability") {
     if (!workspace) return;
     const now = new Date().toISOString();
@@ -665,6 +730,9 @@ export function AccountsManager() {
                 assets={groupAssets}
                 liabilities={groupLiabilities}
                 onRemove={remove}
+                onUpdateAsset={(account) => {
+                  setBalanceUpdateAssetId(account.id);
+                }}
                 onEditLiability={editLiability}
               />
             </section>
@@ -690,6 +758,9 @@ export function AccountsManager() {
               assets={ungroupedAssets}
               liabilities={ungroupedLiabilities}
               onRemove={remove}
+              onUpdateAsset={(account) => {
+                setBalanceUpdateAssetId(account.id);
+              }}
               onEditLiability={editLiability}
             />
           </section>
@@ -710,6 +781,16 @@ export function AccountsManager() {
             setActivityKind(null);
           }}
           onSave={submitActivity}
+        />
+      )}
+
+      {balanceUpdateAccount && (
+        <AccountBalanceDialog
+          account={balanceUpdateAccount}
+          onClose={() => {
+            setBalanceUpdateAssetId(null);
+          }}
+          onSave={submitBalanceUpdate}
         />
       )}
 

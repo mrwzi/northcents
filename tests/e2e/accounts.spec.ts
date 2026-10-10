@@ -54,6 +54,45 @@ test("keeps investments out of spendable cash", async ({ page }) => {
   await expect(page.getByText("$0.00").first()).toBeVisible();
 });
 
+test("updates an investment for dividends, losses, and missed changes", async ({
+  page,
+}) => {
+  await page.goto("/accounts");
+  await page.getByRole("button", { name: "+ Add provider" }).click();
+  await page
+    .getByLabel("What are you adding?")
+    .selectOption("investment-platform");
+  await page.getByLabel("Investment platform name").fill("Wealthsimple");
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByLabel("Current value").fill("1000");
+  await page.getByLabel("Available to spend?").selectOption("non-cash");
+  await page.getByRole("button", { name: "Save account" }).click();
+
+  await page.getByRole("button", { name: "Update TFSA balance" }).click();
+  await page.getByLabel("What changed?").selectOption("interest-dividend");
+  await page.getByLabel("Amount").fill("25.50");
+  await page.getByRole("button", { name: "Update balance" }).click();
+  await expect(
+    page.getByText("TFSA updated to $1,025.50 · Interest or dividend."),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "Update TFSA balance" }).click();
+  await page.getByLabel("What changed?").selectOption("loss");
+  await page.getByLabel("Amount").fill("100");
+  await page.getByRole("button", { name: "Update balance" }).click();
+  await expect(
+    page.getByText("TFSA updated to $925.50 · Investment or crypto loss."),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "Update TFSA balance" }).click();
+  await page.getByLabel("New current balance").fill("1500");
+  await page.getByRole("button", { name: "Update balance" }).click();
+  await expect(
+    page.getByText("TFSA updated to $1,500.00 · Set current balance."),
+  ).toBeVisible();
+});
+
 test("adds cash without asking for a place or account name", async ({
   page,
 }) => {
