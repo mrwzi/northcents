@@ -102,6 +102,29 @@ test("adds a flexible debt without inventing a monthly payment", async ({
   await expect(page.getByText("Monthly payment missing")).toHaveCount(0);
 });
 
+test("saves a paid-off credit card without inventing debt or a payment", async ({
+  page,
+}) => {
+  await page.goto("/accounts");
+  await page.getByRole("button", { name: "+ Add" }).click();
+  await page.getByLabel("Name of bank or platform").fill("Example Bank");
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "Money I owe" }).click();
+  await page
+    .getByLabel("Account type", { exact: true })
+    .selectOption("credit-card");
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByLabel("Current amount owed").fill("0");
+
+  await expect(page.getByLabel("Required monthly payment")).toHaveCount(0);
+  await expect(page.getByText("Nothing is due while")).toBeVisible();
+  await expect(page.getByText("Your credit limit is not money")).toBeVisible();
+
+  await page.getByRole("button", { name: "Save account" }).click();
+  await expect(page.getByText("Account saved locally.")).toBeVisible();
+  await expect(page.getByText("No balance owed")).toBeVisible();
+});
+
 test("records money in and money out against an existing account", async ({
   page,
 }) => {

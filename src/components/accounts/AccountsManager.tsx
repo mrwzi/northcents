@@ -92,6 +92,8 @@ export function AccountsManager() {
   const groups = workspace?.accountGroups ?? [];
   const dialogOpen = dialogGroupId !== null;
   const activeAssets = assets.filter((account) => account.status === "active");
+  const hasZeroLiabilityBalance =
+    kind === "liability" && parseMoney(valueInput, false) === 0;
 
   function openActivity(kind: QuickActivityKind) {
     if (activeAssets.length === 0) {
@@ -174,10 +176,14 @@ export function AccountsManager() {
     const selectedType = kind === "asset" ? assetType : liabilityType;
     const name = accountName.trim() || accountLabels[selectedType];
     const value = parseMoney(valueInput, kind === "asset");
-    const monthlyPayment =
-      kind === "liability" && paymentRequirement === "required"
-        ? parseMoney(monthlyPaymentInput, false)
-        : null;
+    const needsMonthlyPayment =
+      kind === "liability" &&
+      paymentRequirement === "required" &&
+      value !== null &&
+      value > 0;
+    const monthlyPayment = needsMonthlyPayment
+      ? parseMoney(monthlyPaymentInput, false)
+      : 0;
     const selectedGroupId = dialogGroupId ?? "new";
     const placeName =
       selectedGroupId === "new" && newGroupType === "cash"
@@ -185,13 +191,11 @@ export function AccountsManager() {
         : newGroupName.trim();
     if (
       value === null ||
-      (kind === "liability" &&
-        paymentRequirement === "required" &&
-        monthlyPayment === null) ||
+      (needsMonthlyPayment && monthlyPayment === null) ||
       (selectedGroupId === "new" && !placeName)
     ) {
       setMessage(
-        kind === "liability" && paymentRequirement === "required"
+        needsMonthlyPayment
           ? "Enter the current balance and required monthly payment."
           : kind === "liability"
             ? "Enter the current amount owed."
@@ -217,7 +221,7 @@ export function AccountsManager() {
             type: liabilityType,
             currentBalanceCents: asV2Cents(value),
             paymentRequirement,
-            ...(paymentRequirement === "required"
+            ...(needsMonthlyPayment
               ? {
                   requiredMonthlyPaymentCents: asV2Cents(monthlyPayment ?? 0),
                 }
@@ -297,7 +301,7 @@ export function AccountsManager() {
                 type: liabilityType,
                 currentBalanceCents: asV2Cents(value),
                 paymentRequirement,
-                ...(paymentRequirement === "required"
+                ...(needsMonthlyPayment
                   ? {
                       requiredMonthlyPaymentCents: asV2Cents(
                         monthlyPayment ?? 0,
@@ -805,7 +809,11 @@ export function AccountsManager() {
                         autoFocus
                       />
                     </span>
-                    <small id="value-help">CAD · manually entered</small>
+                    <small id="value-help">
+                      {kind === "liability" && liabilityType === "credit-card"
+                        ? "Enter $0 if the card is paid off. Your credit limit is not money you own."
+                        : "CAD · manually entered"}
+                    </small>
                   </label>
                   {kind === "liability" && (
                     <>
@@ -828,7 +836,8 @@ export function AccountsManager() {
                           </option>
                         </select>
                       </label>
-                      {paymentRequirement === "required" ? (
+                      {paymentRequirement === "required" &&
+                      !hasZeroLiabilityBalance ? (
                         <label>
                           Required monthly payment
                           <span className="money-input">
@@ -847,10 +856,16 @@ export function AccountsManager() {
                             the full balance.
                           </small>
                         </label>
-                      ) : (
+                      ) : paymentRequirement === "flexible" ? (
                         <p className="cash-place-note">
                           You choose when and how much to pay. NorthCents will
                           not add a required payment to your plan.
+                        </p>
+                      ) : (
+                        <p className="cash-place-note">
+                          Nothing is due while the current balance is $0. If you
+                          add an amount owed later, NorthCents will ask for the
+                          required monthly payment.
                         </p>
                       )}
                     </>

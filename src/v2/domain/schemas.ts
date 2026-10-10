@@ -138,6 +138,7 @@ export const liabilityAccountSchema = z
   .superRefine((account, context) => {
     if (
       account.paymentRequirement === "required" &&
+      account.currentBalanceCents > 0 &&
       account.requiredMonthlyPaymentCents === undefined
     )
       context.addIssue({

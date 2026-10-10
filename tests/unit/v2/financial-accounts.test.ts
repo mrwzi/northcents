@@ -104,6 +104,13 @@ describe("manual financial accounts", () => {
     expect(
       liabilityAccountSchema.safeParse({
         ...liability,
+        currentBalanceCents: 0,
+        paymentRequirement: "required",
+      }).success,
+    ).toBe(true);
+    expect(
+      liabilityAccountSchema.safeParse({
+        ...liability,
         paymentRequirement: "flexible",
       }).success,
     ).toBe(true);
