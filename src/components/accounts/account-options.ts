@@ -22,6 +22,7 @@ export const accountLabels: Record<
   "credit-card": "Credit card",
   "line-of-credit": "Line of credit",
   "student-loan": "Student loan",
+  "tuition-balance": "Tuition owed to a school",
   "personal-loan": "Personal loan",
   "auto-loan": "Auto loan",
   mortgage: "Mortgage",
@@ -34,6 +35,7 @@ export const groupLabels: Record<AccountGroupType, string> = {
   "online-bank": "Online bank",
   "investment-platform": "Investment platform",
   "crypto-platform": "Crypto platform",
+  "education-provider": "University or college",
   cash: "Cash",
   other: "Other",
 };

@@ -54,6 +54,7 @@ export const LIABILITY_ACCOUNT_TYPES = [
   "credit-card",
   "line-of-credit",
   "student-loan",
+  "tuition-balance",
   "personal-loan",
   "auto-loan",
   "mortgage",

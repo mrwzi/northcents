@@ -125,6 +125,35 @@ test("saves a paid-off credit card without inventing debt or a payment", async (
   await expect(page.getByText("No balance owed")).toBeVisible();
 });
 
+test("offers a clear university or college debt path", async ({ page }) => {
+  await page.goto("/accounts");
+  await page.getByRole("button", { name: "+ Add" }).click();
+  await page.getByLabel("Place type").selectOption("education-provider");
+  await page
+    .getByLabel("Name of university or college")
+    .fill("Example University");
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  await expect(
+    page.getByRole("button", { name: "Money I owe" }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByLabel("Account type", { exact: true })).toHaveValue(
+    "student-loan",
+  );
+  await expect(page.getByText("borrowed education funds")).toBeVisible();
+
+  await page
+    .getByLabel("Account type", { exact: true })
+    .selectOption("tuition-balance");
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByLabel("Current amount owed").fill("1250");
+  await page.getByLabel("Payment schedule").selectOption("flexible");
+  await page.getByRole("button", { name: "Save account" }).click();
+
+  await expect(page.getByText("Account saved locally.")).toBeVisible();
+  await expect(page.getByText("Tuition owed to a school").first()).toBeVisible();
+});
+
 test("records money in and money out against an existing account", async ({
   page,
 }) => {

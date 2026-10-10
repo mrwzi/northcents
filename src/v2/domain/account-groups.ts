@@ -11,6 +11,7 @@ export const ACCOUNT_GROUP_TYPES = [
   "online-bank",
   "investment-platform",
   "crypto-platform",
+  "education-provider",
   "cash",
   "other",
 ] as const;

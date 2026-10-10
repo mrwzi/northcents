@@ -94,6 +94,11 @@ export function AccountsManager() {
   const activeAssets = assets.filter((account) => account.status === "active");
   const hasZeroLiabilityBalance =
     kind === "liability" && parseMoney(valueInput, false) === 0;
+  const selectedGroupType =
+    dialogGroupId === "new"
+      ? newGroupType
+      : groups.find((group) => group.id === dialogGroupId)?.type;
+  const isEducationPlace = selectedGroupType === "education-provider";
 
   function openActivity(kind: QuickActivityKind) {
     if (activeAssets.length === 0) {
@@ -168,6 +173,10 @@ export function AccountsManager() {
       setSpendability("spendable");
       setStep(3);
       return;
+    }
+    if (step === 1 && isEducationPlace) {
+      setKind("liability");
+      setLiabilityType("student-loan");
     }
     setStep((step + 1) as 2 | 3);
   }
@@ -684,6 +693,10 @@ export function AccountsManager() {
                               .value as AccountGroupType;
                             setNewGroupType(nextType);
                             if (nextType === "cash") setNewGroupName("");
+                            if (nextType === "education-provider") {
+                              setKind("liability");
+                              setLiabilityType("student-loan");
+                            }
                           }}
                         >
                           {ACCOUNT_GROUP_TYPES.map((type) => (
@@ -699,14 +712,20 @@ export function AccountsManager() {
                         </p>
                       ) : (
                         <label>
-                          Name of bank or platform
+                          {newGroupType === "education-provider"
+                            ? "Name of university or college"
+                            : "Name of bank or platform"}
                           <input
                             value={newGroupName}
                             onChange={(event) => {
                               setNewGroupName(event.target.value);
                             }}
                             autoComplete="organization"
-                            placeholder="TD, Wealthsimple, or another place"
+                            placeholder={
+                              newGroupType === "education-provider"
+                                ? "For example, University of Waterloo"
+                                : "TD, Wealthsimple, or another place"
+                            }
                             autoFocus
                           />
                         </label>
@@ -761,6 +780,13 @@ export function AccountsManager() {
                       ))}
                     </select>
                   </label>
+                  {isEducationPlace && kind === "liability" && (
+                    <p className="cash-place-note">
+                      Choose Student loan for borrowed education funds. Choose
+                      Tuition owed to a school for an unpaid balance billed
+                      directly by your university or college.
+                    </p>
+                  )}
                   <details className="optional-account-name">
                     <summary>Add a nickname (optional)</summary>
                     <label>

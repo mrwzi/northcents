@@ -66,6 +66,24 @@ describe("manual financial accounts", () => {
   it("validates supported asset and liability records", () => {
     expect(assetAccountSchema.parse(asset)).toEqual(asset);
     expect(liabilityAccountSchema.parse(liability)).toEqual(liability);
+    expect(
+      liabilityAccountSchema.safeParse({
+        ...liability,
+        type: "tuition-balance",
+      }).success,
+    ).toBe(true);
+    expect(
+      accountGroupSchema.safeParse({
+        id: "school-1",
+        workspaceId: "workspace-1",
+        name: "Example University",
+        type: "education-provider",
+        status: "active",
+        provenance: "user-entered",
+        createdAt: now,
+        updatedAt: now,
+      }).success,
+    ).toBe(true);
   });
 
   it("totals known required debt payments and reports missing ones", () => {
