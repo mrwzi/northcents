@@ -566,12 +566,22 @@ select {
 }
 
 .account-group-card header .remove-provider-button {
+  min-height: 32px;
+  padding: 0 0.35rem;
   color: var(--danger);
   background: transparent;
+  font-size: 0.75rem;
+  font-weight: 650;
+  opacity: 0.78;
 }
 
 .account-group-card header .remove-provider-button:hover {
+  opacity: 1;
   background: color-mix(in srgb, var(--danger) 10%, transparent);
+}
+
+.account-group-card header .add-account-button {
+  min-width: 6.25rem;
 }
 
 .account-group-card h3,
@@ -817,6 +827,12 @@ select {
   text-align: right;
 }
 
+.account-list .account-row-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
 .account-list span {
   color: var(--muted);
   font-size: 0.8rem;
@@ -825,6 +841,7 @@ select {
 .account-list button {
   min-width: 44px;
   min-height: 44px;
+  padding: 0 0.35rem;
   border: 0;
   color: var(--muted);
   background: transparent;
@@ -833,6 +850,7 @@ select {
 
 .account-list .account-remove-button {
   color: var(--danger);
+  opacity: 0.78;
 }
 
 .account-list .account-update-button {

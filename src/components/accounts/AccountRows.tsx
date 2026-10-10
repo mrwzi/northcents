@@ -28,24 +28,26 @@ export function AccountRows({
           </div>
           <div>
             <strong>{formatCad(account.currentValueCents)}</strong>
-            <button
-              className="account-update-button"
-              type="button"
-              aria-label={`Update ${account.name} balance`}
-              onClick={() => {
-                onUpdateAsset(account);
-              }}
-            >
-              Update
-            </button>
-            <button
-              className="account-remove-button"
-              type="button"
-              aria-label={`Remove ${account.name}`}
-              onClick={() => void onRemove(account.id, "asset")}
-            >
-              Remove
-            </button>
+            <div className="account-row-actions">
+              <button
+                className="account-update-button"
+                type="button"
+                aria-label={`Update ${account.name} balance`}
+                onClick={() => {
+                  onUpdateAsset(account);
+                }}
+              >
+                Update
+              </button>
+              <button
+                className="account-remove-button"
+                type="button"
+                aria-label={`Remove ${account.name}`}
+                onClick={() => void onRemove(account.id, "asset")}
+              >
+                Remove
+              </button>
+            </div>
           </div>
         </li>
       ))}
@@ -58,23 +60,26 @@ export function AccountRows({
           <div>
             <strong>{formatCad(account.currentBalanceCents)}</strong>
             <span>{debtPaymentLabel(account)}</span>
-            <button
-              className="account-remove-button"
-              type="button"
-              aria-label={`Edit ${account.name}`}
-              onClick={() => {
-                onEditLiability(account);
-              }}
-            >
-              Update
-            </button>
-            <button
-              type="button"
-              aria-label={`Remove ${account.name}`}
-              onClick={() => void onRemove(account.id, "liability")}
-            >
-              Remove
-            </button>
+            <div className="account-row-actions">
+              <button
+                className="account-update-button"
+                type="button"
+                aria-label={`Edit ${account.name}`}
+                onClick={() => {
+                  onEditLiability(account);
+                }}
+              >
+                Update
+              </button>
+              <button
+                className="account-remove-button"
+                type="button"
+                aria-label={`Remove ${account.name}`}
+                onClick={() => void onRemove(account.id, "liability")}
+              >
+                Remove
+              </button>
+            </div>
           </div>
         </li>
       ))}

@@ -721,20 +721,22 @@ export function AccountsManager() {
                 </div>
                 <div className="account-group-actions">
                   <button
-                    className="remove-provider-button"
-                    type="button"
-                    aria-label={`Remove ${group.name} provider`}
-                    onClick={() => void removeProvider(group)}
-                  >
-                    Remove provider
-                  </button>
-                  <button
+                    className="add-account-button"
                     type="button"
                     onClick={() => {
                       openDialog(group.id);
                     }}
                   >
                     + Account
+                  </button>
+                  <button
+                    className="remove-provider-button"
+                    type="button"
+                    aria-label={`Remove ${group.name} provider`}
+                    title={`Remove ${group.name}`}
+                    onClick={() => void removeProvider(group)}
+                  >
+                    Remove
                   </button>
                 </div>
               </header>
