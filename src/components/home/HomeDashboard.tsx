@@ -9,9 +9,30 @@ import {
   deriveTotalLiabilitiesCents,
 } from "../../v2/domain/accounts";
 import { BUDGET_CATEGORIES } from "../../v2/domain/budget-categories";
+import {
+  addCalendarDays,
+  differenceInCalendarDays,
+  parseCalendarDate,
+} from "../../v2/domain/calendar";
+import { expandRecurrence } from "../../v2/domain/recurrence";
+import type { CalendarDate } from "../../v2/domain/types";
 import { useFinancialWorkspace } from "../../v2/react/useFinancialWorkspace";
 import { SignedInGate } from "../auth/SignedInGate";
 import { LoadingState } from "../shared/LoadingState";
+
+function localToday(): CalendarDate {
+  const value = new Date();
+  return parseCalendarDate(
+    `${value.getFullYear().toString().padStart(4, "0")}-${(value.getMonth() + 1).toString().padStart(2, "0")}-${value.getDate().toString().padStart(2, "0")}`,
+  );
+}
+
+function dueLabel(date: CalendarDate, today: CalendarDate): string {
+  const days = differenceInCalendarDays(today, date);
+  if (days === 0) return "Due today";
+  if (days === 1) return "Due tomorrow";
+  return `Due in ${days.toString()} days`;
+}
 
 export function HomeDashboard() {
   return (
@@ -37,7 +58,10 @@ function HomeDashboardContent() {
     );
   if (
     !workspace ||
-    workspace.assetAccounts.length + workspace.liabilityAccounts.length === 0
+    workspace.assetAccounts.length +
+      workspace.liabilityAccounts.length +
+      workspace.expenseDefinitions.length ===
+      0
   )
     return (
       <div className="home-empty-layout">
@@ -93,6 +117,32 @@ function HomeDashboardContent() {
     (total, rule) =>
       total +
       (rule.strategy.kind === "fixed-amount" ? rule.strategy.amountCents : 0),
+    0,
+  );
+  const today = localToday();
+  const horizonEnd = addCalendarDays(today, 30);
+  const upcomingCommitments = workspace.expenseDefinitions
+    .flatMap((definition) => {
+      const occurrences = expandRecurrence({
+        recurrence: definition.recurrence,
+        bounds: definition.bounds,
+        horizonStart: today,
+        horizonEnd,
+      }).occurrences;
+      const nextDate = occurrences[0];
+      return nextDate
+        ? [{ definition, nextDate, occurrenceCount: occurrences.length }]
+        : [];
+    })
+    .sort((left, right) => {
+      const rank = { required: 0, flexible: 1, optional: 2 } as const;
+      return (
+        rank[left.definition.obligation] - rank[right.definition.obligation] ||
+        left.nextDate.localeCompare(right.nextDate)
+      );
+    });
+  const upcomingCommitmentTotal = upcomingCommitments.reduce(
+    (total, item) => total + item.definition.amountCents * item.occurrenceCount,
     0,
   );
   return (
@@ -164,6 +214,51 @@ function HomeDashboardContent() {
           )}
         </div>
       </section>
+      {upcomingCommitments.length > 0 && (
+        <section
+          className="app-card home-due-card"
+          aria-labelledby="home-due-heading"
+        >
+          <div className="home-section-heading">
+            <div>
+              <p className="eyebrow">Next 30 days</p>
+              <h2 id="home-due-heading">What needs attention</h2>
+            </div>
+            <Link href="/accounts">Manage</Link>
+          </div>
+          <div className="home-plan-total">
+            <span>Expected commitments</span>
+            <strong>{formatCad(upcomingCommitmentTotal)}</strong>
+          </div>
+          <ul className="home-due-list">
+            {upcomingCommitments.slice(0, 5).map(({ definition, nextDate }) => (
+              <li key={definition.id}>
+                <span>
+                  <strong>{definition.name}</strong>
+                  <small>
+                    {BUDGET_CATEGORIES[definition.category]} ·{" "}
+                    {dueLabel(nextDate, today)}
+                  </small>
+                </span>
+                <span>
+                  <strong>{formatCad(definition.amountCents)}</strong>
+                  <small
+                    className={`priority priority-${definition.obligation}`}
+                  >
+                    {definition.obligation === "required"
+                      ? "Pay first"
+                      : definition.obligation}
+                  </small>
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="reminder-note">
+            These are in-app reminders. NorthCents does not send email or phone
+            notifications yet.
+          </p>
+        </section>
+      )}
       <section className="app-card home-plan-card" aria-labelledby="home-plan">
         <div className="home-section-heading">
           <div>

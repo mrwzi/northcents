@@ -349,6 +349,46 @@ select {
   margin-top: 1.5rem;
 }
 
+.home-due-card {
+  margin-top: 1rem;
+}
+
+.home-due-list {
+  display: grid;
+  gap: 0;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-due-list li {
+  display: flex;
+  padding: 0.8rem 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.home-due-list li > span {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.home-due-list li > span:last-child {
+  justify-items: end;
+}
+
+.home-due-list small,
+.reminder-note {
+  color: var(--muted);
+}
+
+.reminder-note {
+  margin: 0.75rem 0 0;
+  font-size: 0.78rem;
+}
+
 .home-plan-card .home-section-heading {
   align-items: flex-start;
 }

@@ -275,6 +275,15 @@ test("adds and prioritizes a recurring household bill", async ({ page }) => {
   await expect(page.getByText("$425.00")).toBeVisible();
   await expect(page.getByText("Monthly · day 12")).toBeVisible();
   await expect(page.getByText("required", { exact: true })).toBeVisible();
+
+  await page.goto("/");
+  await expect(
+    page.getByRole("heading", { name: "What needs attention" }),
+  ).toBeVisible();
+  await expect(page.getByText("Family car loan")).toBeVisible();
+  await expect(page.getByText("Pay first")).toBeVisible();
+  await expect(page.getByText("Expected commitments")).toBeVisible();
+  await expect(page.getByText("These are in-app reminders.")).toBeVisible();
 });
 
 test("account form is usable without a pointer", async ({ page }) => {
