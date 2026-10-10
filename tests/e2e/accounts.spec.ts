@@ -143,6 +143,12 @@ test("adds a flexible debt without inventing a monthly payment", async ({
   await page.getByRole("button", { name: "Save account" }).click();
   await expect(page.getByText("No fixed monthly payment")).toBeVisible();
   await expect(page.getByText("Monthly payment missing")).toHaveCount(0);
+
+  await page.goto("/plan");
+  await expect(
+    page.getByText("How much would you like to put toward flexible debt?"),
+  ).toHaveCount(0);
+  await expect(page.getByText("Step 1 of 13")).toBeVisible();
 });
 
 test("saves a paid-off credit card without inventing debt or a payment", async ({
@@ -298,6 +304,18 @@ test("adds and prioritizes a recurring household bill", async ({ page }) => {
   await expect(page.getByText("Pay first")).toBeVisible();
   await expect(page.getByText("Expected commitments")).toBeVisible();
   await expect(page.getByText("These are in-app reminders.")).toBeVisible();
+
+  await page.goto("/plan");
+  await expect(
+    page.getByRole("heading", { name: "Your monthly plan" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("listitem").filter({ hasText: "Transportation" }),
+  ).toContainText("$425.00");
+  await expect(
+    page.getByText("This plan needs a change before saving."),
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Save plan" })).toBeDisabled();
 });
 
 test("account form is usable without a pointer", async ({ page }) => {

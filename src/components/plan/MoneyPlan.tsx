@@ -18,7 +18,7 @@ import {
   deriveRequiredDebtPayments,
   deriveSpendableCashCents,
 } from "../../v2/domain/accounts";
-import { addCents, asV2Cents, parseV2CadInput } from "../../v2/domain/money";
+import { parseV2CadInput } from "../../v2/domain/money";
 import type { PlanningGroup } from "../../v2/domain/planning";
 import type { AllocationRuleId, V2Cents } from "../../v2/domain/types";
 import { useFinancialWorkspace } from "../../v2/react/useFinancialWorkspace";
@@ -28,11 +28,17 @@ import { LoadingState } from "../shared/LoadingState";
 const PLAN_CATEGORIES = [
   "housing",
   "utilities",
+  "phone-internet",
+  "insurance",
   "groceries",
+  "restaurants",
   "transportation",
+  "health-personal-care",
   "debt-payments",
   "savings-goals",
   "clothing",
+  "shopping",
+  "subscriptions",
   "entertainment-recreation",
 ] as const satisfies readonly BudgetCategoryKey[];
 
@@ -46,9 +52,15 @@ const GROUP_BY_CATEGORY: Record<
 > = {
   housing: "required-obligations",
   utilities: "required-obligations",
+  "phone-internet": "required-obligations",
+  insurance: "required-obligations",
   groceries: "essential-flexible",
+  restaurants: "lifestyle-flexible",
   transportation: "essential-flexible",
+  "health-personal-care": "essential-flexible",
   clothing: "lifestyle-flexible",
+  shopping: "lifestyle-flexible",
+  subscriptions: "lifestyle-flexible",
   "entertainment-recreation": "lifestyle-flexible",
   "debt-payments": "required-obligations",
   "savings-goals": "protection-reserves",
@@ -68,15 +80,37 @@ const CATEGORY_QUESTIONS: Record<
     explanation: "Include electricity, water, heating, and similar bills.",
     skip: "Utilities are included or not applicable",
   },
+  "phone-internet": {
+    question: "How much do phone and internet cost each month?",
+    explanation:
+      "Include mobile plans, home internet, and required service fees.",
+    skip: "No phone or internet cost",
+  },
+  insurance: {
+    question: "How much do you pay for insurance each month?",
+    explanation: "Include vehicle, tenant, home, health, or life insurance.",
+    skip: "No insurance amount",
+  },
   groceries: {
     question: "How much do you spend on groceries each month?",
     explanation: "Use a normal monthly estimate for food bought for home.",
     skip: "I do not pay for groceries",
   },
+  restaurants: {
+    question: "How much do you want for eating out each month?",
+    explanation: "Include restaurants, delivery, coffee, and takeout.",
+    skip: "No eating-out amount",
+  },
   transportation: {
     question: "How much is transportation each month?",
     explanation: "Include transit, fuel, parking, or regular vehicle costs.",
     skip: "I do not have transportation costs",
+  },
+  "health-personal-care": {
+    question: "How much is health and personal care each month?",
+    explanation:
+      "Include prescriptions, dental care, toiletries, and similar costs.",
+    skip: "No health or personal-care amount",
   },
   "debt-payments": {
     question: "How much would you like to put toward flexible debt?",
@@ -94,6 +128,18 @@ const CATEGORY_QUESTIONS: Record<
     explanation: "Use a monthly average, even if you buy clothes less often.",
     skip: "No clothing amount",
   },
+  shopping: {
+    question: "How much do you want for shopping each month?",
+    explanation:
+      "Include online orders, household items, gifts, and non-essential purchases.",
+    skip: "No shopping amount",
+  },
+  subscriptions: {
+    question: "How much do subscriptions and memberships cost each month?",
+    explanation:
+      "Include streaming, apps, software, clubs, and gym memberships.",
+    skip: "No subscriptions or memberships",
+  },
   "entertainment-recreation": {
     question: "How much do you want for entertainment each month?",
     explanation: "Include hobbies, outings, games, and recreation.",
@@ -110,6 +156,17 @@ function categoryLabel(category: (typeof PLAN_CATEGORIES)[number]): string {
 function parseAmount(value: string): V2Cents | null {
   const parsed = parseV2CadInput(value);
   return parsed.ok ? parsed.cents : null;
+}
+
+function monthlyCommitmentCents(
+  amountCents: V2Cents,
+  recurrence: { kind: string },
+): number {
+  if (recurrence.kind === "weekly") return Math.round((amountCents * 52) / 12);
+  if (recurrence.kind === "biweekly")
+    return Math.round((amountCents * 26) / 12);
+  if (recurrence.kind === "semimonthly") return amountCents * 2;
+  return recurrence.kind === "monthly" ? amountCents : 0;
 }
 
 export function MoneyPlan() {
@@ -134,15 +191,7 @@ function MoneyPlanContent() {
   const [planStep, setPlanStep] = useState(0);
   const [stepError, setStepError] = useState<string | null>(null);
   const restoredPlan = useRef(false);
-  const hasFlexibleDebt = (workspace?.liabilityAccounts ?? []).some(
-    (account) =>
-      account.status === "active" &&
-      account.currentBalanceCents > 0 &&
-      account.paymentRequirement === "flexible",
-  );
-  const questionCategories = hasFlexibleDebt
-    ? PLAN_CATEGORIES
-    : QUESTION_CATEGORIES;
+  const questionCategories = QUESTION_CATEGORIES;
 
   useEffect(() => {
     if (!workspace || restoredPlan.current) return;
@@ -154,17 +203,23 @@ function MoneyPlanContent() {
         rule.category &&
         rule.strategy.kind === "fixed-amount"
       )
-        if (rule.category === "debt-payments") {
-          const required = deriveRequiredDebtPayments(
-            workspace.liabilityAccounts,
-          ).totalCents;
-          restored[rule.category] = (
-            Math.max(0, rule.strategy.amountCents - required) / 100
-          ).toFixed(2);
-        } else
+        if (rule.category !== "debt-payments")
           restored[rule.category] = (rule.strategy.amountCents / 100).toFixed(
             2,
           );
+    }
+    if (Object.keys(restored).length === 0) {
+      const commitmentTotals: Record<string, number> = {};
+      for (const commitment of workspace.expenseDefinitions) {
+        commitmentTotals[commitment.category] =
+          (commitmentTotals[commitment.category] ?? 0) +
+          monthlyCommitmentCents(commitment.amountCents, commitment.recurrence);
+      }
+      for (const category of questionCategories) {
+        const cents = commitmentTotals[category];
+        if (cents !== undefined && cents > 0)
+          restored[category] = (cents / 100).toFixed(2);
+      }
     }
     setAmounts(restored);
     if (Object.keys(restored).length > 0)
@@ -190,10 +245,7 @@ function MoneyPlanContent() {
           return [
             {
               category,
-              amountCents: addCents(
-                debtPayments.totalCents,
-                parseAmount(amounts[category] ?? "0") ?? asV2Cents(0),
-              ),
+              amountCents: debtPayments.totalCents,
             },
           ];
         const cents = parseAmount(amounts[category] ?? "0");
@@ -203,13 +255,15 @@ function MoneyPlanContent() {
   );
   const invalidAllocation = PLAN_CATEGORIES.some(
     (category) =>
-      (category !== "debt-payments" || hasFlexibleDebt) &&
+      category !== "debt-payments" &&
       parseAmount(amounts[category] ?? "0") === null,
   );
   const analysis =
     planningAmount !== null && planningAmount >= 0 && !invalidAllocation
       ? analyzeBudget(planningAmount, allocations, {
-          hasDebt: (workspace?.liabilityAccounts.length ?? 0) > 0,
+          hasDebt:
+            debtPayments.totalCents > 0 ||
+            debtPayments.missingAccountIds.length > 0,
         })
       : null;
   const purchaseCents = parseAmount(purchase);
@@ -238,7 +292,7 @@ function MoneyPlanContent() {
     );
 
   async function savePlan() {
-    if (!analysis || !workspace) return;
+    if (!analysis || !workspace || analysis.unallocatedCents < 0) return;
     const now = new Date().toISOString();
     const unrelatedRules = workspace.allocationRules.filter(
       (rule) => rule.category === undefined,
@@ -267,7 +321,9 @@ function MoneyPlanContent() {
         })),
     ];
     await save({ ...workspace, allocationRules, updatedAt: now });
-    setMessage("Plan saved on this device.");
+    setMessage(
+      "Plan saved in this browser. Use Settings › Save backup to access it from another device.",
+    );
   }
 
   function addEmergencyStarter() {
@@ -572,10 +628,7 @@ function MoneyPlanContent() {
                 );
                 const displayedCents =
                   category === "debt-payments"
-                    ? addCents(
-                        debtPayments.totalCents,
-                        parseAmount(amounts[category] ?? "0") ?? asV2Cents(0),
-                      )
+                    ? debtPayments.totalCents
                     : (parseAmount(amounts[category] ?? "0") ?? 0);
                 return (
                   <li key={category}>
@@ -624,6 +677,27 @@ function MoneyPlanContent() {
                 <p className="form-error" role="alert">
                   Enter the money you are planning before saving this plan.
                 </p>
+              )}
+
+              {analysis && analysis.unallocatedCents < 0 && (
+                <aside className="plan-over-warning" role="alert">
+                  <strong>This plan needs a change before saving.</strong>
+                  <span>
+                    Reduce planned amounts by{" "}
+                    {formatCad(Math.abs(analysis.unallocatedCents))}, or choose
+                    Next payment and enter a larger amount.
+                  </span>
+                  <button
+                    className="button button-secondary"
+                    type="button"
+                    onClick={() => {
+                      setPlanStep(0);
+                      setMessage(null);
+                    }}
+                  >
+                    Edit amounts
+                  </button>
+                </aside>
               )}
 
               {analysis && (
@@ -769,7 +843,7 @@ function MoneyPlanContent() {
               <button
                 className="button button-primary"
                 type="button"
-                disabled={!analysis}
+                disabled={!analysis || analysis.unallocatedCents < 0}
                 onClick={() => void savePlan()}
               >
                 Save plan
@@ -780,8 +854,9 @@ function MoneyPlanContent() {
                 </p>
               )}
               <p className="plan-storage-note">
-                Saved to this device. Signed-in users can copy the workspace to
-                their private cloud account from Settings.
+                Plans stay in this browser on this device. To use the same data
+                on another phone or computer, open Settings and choose Save
+                backup, then restore it after signing in there.
               </p>
             </>
           )}

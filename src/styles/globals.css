@@ -1090,6 +1090,24 @@ select {
   background: var(--surface-soft);
 }
 
+.plan-over-warning {
+  display: grid;
+  gap: 0.55rem;
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, var(--line));
+  border-radius: 0.9rem;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface-raised));
+}
+
+.plan-over-warning span {
+  color: var(--muted);
+}
+
+.plan-over-warning .button {
+  width: fit-content;
+}
+
 .plan-debt-notice strong,
 .plan-debt-notice span {
   display: block;

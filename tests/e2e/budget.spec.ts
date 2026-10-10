@@ -25,22 +25,32 @@ test("allocates account money and models a purchase without changing the balance
       .getByText("$1,000.00"),
   ).toBeVisible();
 
-  await expect(page.getByText("Step 1 of 7")).toBeVisible();
+  await expect(page.getByText("Step 1 of 13")).toBeVisible();
   await page
     .getByRole("button", { name: "I do not pay housing costs" })
     .click();
   await page
     .getByRole("button", { name: "Utilities are included or not applicable" })
     .click();
+  await page.getByRole("button", { name: "No phone or internet cost" }).click();
+  await page.getByRole("button", { name: "No insurance amount" }).click();
   await page.getByLabel("Groceries amount").fill("250");
   await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "No eating-out amount" }).click();
   await page
     .getByRole("button", { name: "I do not have transportation costs" })
+    .click();
+  await page
+    .getByRole("button", { name: "No health or personal-care amount" })
     .click();
   await page.getByLabel("Savings / goals amount").fill("100");
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByLabel("Clothing amount").fill("50");
   await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "No shopping amount" }).click();
+  await page
+    .getByRole("button", { name: "No subscriptions or memberships" })
+    .click();
   await page.getByRole("button", { name: "No entertainment amount" }).click();
 
   await expect(
@@ -58,7 +68,7 @@ test("allocates account money and models a purchase without changing the balance
     "$175.00",
   );
   await page.getByRole("button", { name: "Save plan" }).click();
-  await expect(page.getByText("Plan saved on this device.")).toBeVisible();
+  await expect(page.getByText("Plan saved in this browser.")).toBeVisible();
 
   await page.reload();
   await expect(
