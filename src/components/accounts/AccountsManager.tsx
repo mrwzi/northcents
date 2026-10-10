@@ -120,6 +120,7 @@ export function AccountsManager() {
     useState<LiabilityAccountType>("credit-card");
   const [valueInput, setValueInput] = useState("");
   const [monthlyPaymentInput, setMonthlyPaymentInput] = useState("");
+  const [paymentDueDayInput, setPaymentDueDayInput] = useState("");
   const [paymentRequirement, setPaymentRequirement] =
     useState<DebtPaymentRequirement>("required");
   const [editingLiabilityId, setEditingLiabilityId] = useState<string | null>(
@@ -186,6 +187,7 @@ export function AccountsManager() {
     setLiabilityType("credit-card");
     setValueInput("");
     setMonthlyPaymentInput("");
+    setPaymentDueDayInput("");
     setPaymentRequirement("required");
     setEditingLiabilityId(null);
     setSpendability("spendable");
@@ -204,6 +206,7 @@ export function AccountsManager() {
         ? ""
         : (account.requiredMonthlyPaymentCents / 100).toFixed(2),
     );
+    setPaymentDueDayInput(account.paymentDueDay?.toString() ?? "");
     setPaymentRequirement(account.paymentRequirement ?? "required");
     setEditingLiabilityId(account.id);
     setMessage(null);
@@ -256,6 +259,9 @@ export function AccountsManager() {
     const monthlyPayment = needsMonthlyPayment
       ? parseMoney(monthlyPaymentInput, false)
       : 0;
+    const paymentDueDay = paymentDueDayInput
+      ? Number(paymentDueDayInput)
+      : undefined;
     const selectedGroupId = dialogGroupId ?? "new";
     const placeName =
       selectedGroupId === "new" && newGroupType === "cash"
@@ -264,6 +270,10 @@ export function AccountsManager() {
     if (
       value === null ||
       (needsMonthlyPayment && monthlyPayment === null) ||
+      (paymentDueDay !== undefined &&
+        (!Number.isInteger(paymentDueDay) ||
+          paymentDueDay < 1 ||
+          paymentDueDay > 31)) ||
       (selectedGroupId === "new" && !placeName)
     ) {
       setMessage(
@@ -296,6 +306,7 @@ export function AccountsManager() {
             ...(needsMonthlyPayment
               ? {
                   requiredMonthlyPaymentCents: asV2Cents(monthlyPayment ?? 0),
+                  ...(paymentDueDay !== undefined ? { paymentDueDay } : {}),
                 }
               : {}),
             balanceAsOfDate: localToday(),
@@ -378,6 +389,7 @@ export function AccountsManager() {
                       requiredMonthlyPaymentCents: asV2Cents(
                         monthlyPayment ?? 0,
                       ),
+                      ...(paymentDueDay !== undefined ? { paymentDueDay } : {}),
                     }
                   : {}),
                 balanceAsOfDate: localToday(),
@@ -1057,6 +1069,21 @@ export function AccountsManager() {
                           <small id="monthly-payment-help">
                             Use the required payment shown by your lender—not
                             the full balance.
+                          </small>
+                          <span className="field-label">
+                            Payment due day (optional)
+                          </span>
+                          <input
+                            value={paymentDueDayInput}
+                            onChange={(event) => {
+                              setPaymentDueDayInput(event.target.value);
+                            }}
+                            inputMode="numeric"
+                            placeholder="For example, 15"
+                            aria-label="Payment due day"
+                          />
+                          <small>
+                            Use the day shown on your statement, from 1 to 31.
                           </small>
                         </label>
                       ) : paymentRequirement === "flexible" ? (

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AccountsManager } from "../../components/accounts/AccountsManager";
+import { CommitmentsManager } from "../../components/accounts/CommitmentsManager";
 import { SignedInGate } from "../../components/auth/SignedInGate";
 
 export const metadata: Metadata = { title: "Accounts" };
@@ -14,6 +15,7 @@ export default function AccountsPage() {
           <p>Add each place you keep money and each amount you owe.</p>
         </div>
         <AccountsManager />
+        <CommitmentsManager />
       </SignedInGate>
     </section>
   );

@@ -85,7 +85,7 @@ export function AccountRows({
 function debtPaymentLabel(account: LiabilityAccount): string {
   if (account.currentBalanceCents === 0) return "No balance owed";
   if (account.requiredMonthlyPaymentCents !== undefined)
-    return `${formatCad(account.requiredMonthlyPaymentCents)} / month`;
+    return `${formatCad(account.requiredMonthlyPaymentCents)} / month${account.paymentDueDay ? ` · due day ${account.paymentDueDay.toString()}` : ""}`;
   return account.paymentRequirement === "flexible"
     ? "No fixed monthly payment"
     : "Monthly payment missing";

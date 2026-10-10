@@ -75,6 +75,7 @@ export type LiabilityAccount = EntityMetadata &
     currentBalanceCents: V2Cents;
     paymentRequirement?: DebtPaymentRequirement;
     requiredMonthlyPaymentCents?: V2Cents;
+    paymentDueDay?: number;
     balanceAsOfDate: CalendarDate;
     includeInNetWorth: boolean;
     status: AccountStatus;

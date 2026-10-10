@@ -857,6 +857,59 @@ select {
   font-variant-numeric: tabular-nums;
 }
 
+.commitments-card {
+  margin-top: 1.25rem;
+}
+.commitment-list {
+  display: grid;
+  gap: 0.65rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.commitment-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+}
+.commitment-list li > div {
+  display: grid;
+  gap: 0.2rem;
+}
+.commitment-list li > div:last-child {
+  justify-items: end;
+}
+.commitment-list span,
+.commitment-list small {
+  color: var(--muted);
+}
+.priority {
+  padding: 0.15rem 0.45rem;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  text-transform: capitalize;
+}
+.priority-required {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+.priority-flexible {
+  color: var(--brand-dark);
+  background: var(--surface-soft);
+}
+.priority-optional {
+  color: var(--muted);
+  background: var(--surface-soft);
+}
+@media (max-width: 600px) {
+  .commitment-list li {
+    align-items: flex-start;
+  }
+}
+
 .plan-debt-notice {
   display: flex;
   margin-top: 1rem;

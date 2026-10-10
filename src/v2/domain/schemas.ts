@@ -128,6 +128,7 @@ export const liabilityAccountSchema = z
     currentBalanceCents: nonNegativeV2CentsSchema,
     paymentRequirement: z.enum(DEBT_PAYMENT_REQUIREMENTS).optional(),
     requiredMonthlyPaymentCents: nonNegativeV2CentsSchema.optional(),
+    paymentDueDay: z.number().int().min(1).max(31).optional(),
     balanceAsOfDate: calendarDateSchema,
     includeInNetWorth: z.boolean(),
     status: z.enum(["active", "archived"]),

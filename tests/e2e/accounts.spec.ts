@@ -25,10 +25,12 @@ test("adds manual assets and liabilities and derives the home totals", async ({
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByLabel("Current amount owed").fill("420.25");
   await page.getByLabel("Required monthly payment").fill("35.00");
+  await page.getByLabel("Payment due day", { exact: true }).fill("18");
   await page.getByRole("button", { name: "Save account" }).click();
   await expect(page.getByText("−$420.25")).toHaveCount(0);
   await expect(page.getByText("$420.25").first()).toBeVisible();
   await expect(page.getByText("$35.00 / month")).toBeVisible();
+  await expect(page.getByText("due day 18")).toBeVisible();
 
   await page.goto("/");
   await expect(page.getByText("Your financial picture")).toBeVisible();
@@ -255,6 +257,22 @@ test("records money in and money out against an existing account", async ({
     page.getByText("$20.25 spending recorded from Chequing."),
   ).toBeVisible();
   await expect(page.getByText("$130.00").first()).toBeVisible();
+});
+
+test("adds and prioritizes a recurring household bill", async ({ page }) => {
+  await page.goto("/accounts");
+  await page.getByRole("button", { name: "+ Add bill" }).click();
+  await page.getByLabel("Bill or membership name").fill("Family car loan");
+  await page.getByLabel("Amount").fill("425");
+  await page.getByLabel("Category").selectOption("transportation");
+  await page.getByLabel("Priority").selectOption("required");
+  await page.getByLabel("Due day each month", { exact: true }).fill("12");
+  await page.getByRole("button", { name: "Save bill" }).click();
+
+  await expect(page.getByText("Family car loan")).toBeVisible();
+  await expect(page.getByText("$425.00")).toBeVisible();
+  await expect(page.getByText("Monthly · day 12")).toBeVisible();
+  await expect(page.getByText("required", { exact: true })).toBeVisible();
 });
 
 test("account form is usable without a pointer", async ({ page }) => {
