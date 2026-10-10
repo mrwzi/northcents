@@ -223,8 +223,10 @@ test("adds and completely removes a crypto provider", async ({ page }) => {
 
   await expect(page.getByRole("heading", { name: "MEXC" })).toBeVisible();
   await expect(page.getByText("Crypto exchange or wallet")).toBeVisible();
+  await page.getByLabel("More actions for Crypto").click();
   await page.getByRole("button", { name: "Remove Crypto" }).click();
   await expect(page.getByText("No accounts here yet.")).toBeVisible();
+  await page.getByLabel("More provider actions for MEXC").click();
   await page.getByRole("button", { name: "Remove MEXC provider" }).click();
 
   await expect(page.getByRole("heading", { name: "MEXC" })).toHaveCount(0);

@@ -729,15 +729,23 @@ export function AccountsManager() {
                   >
                     + Account
                   </button>
-                  <button
-                    className="remove-provider-button"
-                    type="button"
-                    aria-label={`Remove ${group.name} provider`}
-                    title={`Remove ${group.name}`}
-                    onClick={() => void removeProvider(group)}
-                  >
-                    Remove
-                  </button>
+                  <details className="action-menu provider-action-menu">
+                    <summary
+                      aria-label={`More provider actions for ${group.name}`}
+                    >
+                      •••
+                    </summary>
+                    <div className="action-menu-popover">
+                      <button
+                        className="remove-provider-button"
+                        type="button"
+                        aria-label={`Remove ${group.name} provider`}
+                        onClick={() => void removeProvider(group)}
+                      >
+                        Remove provider
+                      </button>
+                    </div>
+                  </details>
                 </div>
               </header>
               <AccountRows

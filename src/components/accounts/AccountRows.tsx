@@ -39,14 +39,21 @@ export function AccountRows({
               >
                 Update
               </button>
-              <button
-                className="account-remove-button"
-                type="button"
-                aria-label={`Remove ${account.name}`}
-                onClick={() => void onRemove(account.id, "asset")}
-              >
-                Remove
-              </button>
+              <details className="action-menu">
+                <summary aria-label={`More actions for ${account.name}`}>
+                  •••
+                </summary>
+                <div className="action-menu-popover">
+                  <button
+                    className="account-remove-button"
+                    type="button"
+                    aria-label={`Remove ${account.name}`}
+                    onClick={() => void onRemove(account.id, "asset")}
+                  >
+                    Remove account
+                  </button>
+                </div>
+              </details>
             </div>
           </div>
         </li>
@@ -71,14 +78,21 @@ export function AccountRows({
               >
                 Update
               </button>
-              <button
-                className="account-remove-button"
-                type="button"
-                aria-label={`Remove ${account.name}`}
-                onClick={() => void onRemove(account.id, "liability")}
-              >
-                Remove
-              </button>
+              <details className="action-menu">
+                <summary aria-label={`More actions for ${account.name}`}>
+                  •••
+                </summary>
+                <div className="action-menu-popover">
+                  <button
+                    className="account-remove-button"
+                    type="button"
+                    aria-label={`Remove ${account.name}`}
+                    onClick={() => void onRemove(account.id, "liability")}
+                  >
+                    Remove account
+                  </button>
+                </div>
+              </details>
             </div>
           </div>
         </li>
